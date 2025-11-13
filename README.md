@@ -1,196 +1,73 @@
-# RideBook - Complete Ride Booking Platform
+# Welcome to your Lovable project
 
-A modern, responsive ride-booking web application built with React, TypeScript, and Tailwind CSS. This platform supports three user roles: Riders, Drivers, and Admins, with complete API integration ready for your backend.
+## Project info
 
-##  Features
+**URL**: https://lovable.dev/projects/8c6ee27a-334b-4a94-b343-af0ba90adf7e
 
-### For Riders
-- **Request Rides**: Easy-to-use form with pickup and destination locations
-- **Ride History**: View all past and active rides
-- **Real-time Status**: Track ride status updates
-- **Cancel Rides**: Cancel pending rides anytime
-- **Profile Management**: View and manage account details
+## How can I edit this code?
 
-### For Drivers
-- **Active Rides Dashboard**: Accept or reject ride requests
-- **Earnings Tracking**: View earnings history and statistics
-- **Availability Toggle**: Control when you're available for rides
-- **Status Updates**: Update ride status (picked up, completed, etc.)
-- **Profile Management**: Manage driver information
+There are several ways of editing your application.
 
-### For Admins
-- **Dashboard Overview**: Key metrics and statistics
-- **User Management**: View, block, and unblock users
-- **Driver Management**: Approve, suspend, and manage drivers
-- **Ride Monitoring**: View all rides across the platform
-- **Reports**: Generate comprehensive reports and analytics
+**Use Lovable**
 
-##  Design Features
+Simply visit the [Lovable Project](https://lovable.dev/projects/8c6ee27a-334b-4a94-b343-af0ba90adf7e) and start prompting.
 
-- **Modern UI**: Clean, professional design with gradient accents
-- **Responsive**: Fully responsive for mobile, tablet, and desktop
-- **Dark Mode Ready**: Design system supports dark mode
-- **Semantic Colors**: HSL-based color system for consistent theming
-- **Status Indicators**: Clear visual feedback for all actions
-- **Toast Notifications**: User-friendly success/error messages
+Changes made via Lovable will be committed automatically to this repo.
 
-##  Tech Stack
+**Use your preferred IDE**
 
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Shadcn UI** - Component library
-- **React Router** - Navigation
-- **React Query** - Data fetching
-- **Sonner** - Toast notifications
-- **Lucide React** - Icons
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-##  Installation
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-1. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd <project-folder>
-   ```
+Follow these steps:
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update `.env` with your backend API URL:
-   ```
-   VITE_API_BASE_URL=http://localhost:4000/api
-   ```
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
 
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
+# Step 3: Install the necessary dependencies.
+npm i
 
-   The app will be available at `http://localhost:8080`
-
-##  API Integration
-
-The application is fully integrated with the provided Postman API collection. All API calls are configured in `src/lib/api.ts`.
-
-### Backend Requirements
-
-Your backend should implement these endpoints:
-
-#### Authentication
-- `POST /auth/register` - User registration
-- `POST /auth/login` - User login
-- `POST /auth/refresh` - Refresh access token
-
-#### Users
-- `GET /users/profile` - Get user profile
-- `GET /users/rides` - Get user's rides
-- `GET /users/rides/:rideId` - Get specific ride
-
-#### Riders
-- `POST /riders/request` - Request a new ride
-- `POST /riders/:rideId/cancel` - Cancel a ride
-- `GET /riders/history` - Get ride history
-- `GET /riders/:rideId` - Get specific ride
-
-#### Drivers
-- `POST /drivers/:rideId/accept` - Accept ride request
-- `POST /drivers/:rideId/reject` - Reject ride request
-- `POST /drivers/:rideId/status` - Update ride status
-- `POST /drivers/availability` - Set driver availability
-- `GET /drivers/earnings` - Get earnings history
-- `GET /drivers/:rideId` - Get specific ride
-
-#### Admin
-- `GET /admin/users` - List all users
-- `GET /admin/drivers` - List all drivers
-- `GET /admin/rides` - List all rides
-- `POST /admin/drivers/:driverId/approve` - Approve driver
-- `POST /admin/drivers/:driverId/suspend` - Suspend driver
-- `POST /admin/users/:userId/block` - Block user
-- `POST /admin/users/:userId/unblock` - Unblock user
-- `GET /admin/reports` - Generate reports
-
-### API Response Format
-
-The API client expects responses in this format:
-
-```json
-{
-  "data": { /* response data */ },
-  "message": "Success message",
-  "error": "Error message (if error)"
-}
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
 ```
 
-##  Authentication
+**Edit a file directly in GitHub**
 
-The app uses JWT token-based authentication:
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-1. User logs in with email and password
-2. Backend returns `accessToken` and `refreshToken`
-3. All authenticated requests include `Authorization: Bearer {accessToken}` header
-4. Token refresh is handled automatically
+**Use GitHub Codespaces**
 
-##  User Roles
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
+## What technologies are used for this project?
 
+This project is built with:
 
-### Role-Based Access
-- Each role has its own dashboard and routes
-- Protected routes prevent unauthorized access
-- Users are automatically redirected to their role-specific dashboard
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
+## How can I deploy this project?
 
+Simply open [Lovable](https://lovable.dev/projects/8c6ee27a-334b-4a94-b343-af0ba90adf7e) and click on Share -> Publish.
 
+## Can I connect a custom domain to my Lovable project?
 
+Yes, you can!
 
-### Components
-All UI components are in `src/components/ui/` and can be customized using Tailwind CSS classes.
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-
-
-##  Environment Variables
-
-Create a `.env` file with:
-
-```env
-VITE_API_BASE_URL=https://your-api-url.com/api
-```
-
-
-### Authentication Issues
-- Clear localStorage and try logging in again
-- Verify JWT tokens are being sent in request headers
-- Check token expiration settings on backend
-
-### Build Errors
-- Delete `node_modules` and `package-lock.json`
-- Run `npm install` again
-- Clear build cache: `npm run build --force`
-
-
-
-
-
-## ✨ Features to Consider Adding
-
-- Real-time ride tracking with maps integration (Google Maps, Mapbox)
-- Push notifications for ride updates
-- Payment gateway integration (Stripe, PayPal)
-- Driver ratings and reviews
-- Chat between rider and driver
-- Trip sharing and splitting
-- Promotional codes and discounts
-- Multi-language support
-- Progressive Web App (PWA) features
-
----
-
-
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
