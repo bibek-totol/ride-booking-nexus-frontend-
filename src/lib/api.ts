@@ -1,4 +1,4 @@
-// API client configuration
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
 
 interface ApiResponse<T> {
@@ -7,12 +7,12 @@ interface ApiResponse<T> {
   message?: string;
 }
 
-// Get auth token from localStorage
+
 const getAuthToken = (): string | null => {
   return localStorage.getItem('accessToken');
 };
 
-// Save auth tokens to localStorage
+
 export const saveAuthTokens = (accessToken: string, refreshToken?: string) => {
   localStorage.setItem('accessToken', accessToken);
   if (refreshToken) {
@@ -20,14 +20,14 @@ export const saveAuthTokens = (accessToken: string, refreshToken?: string) => {
   }
 };
 
-// Clear auth tokens from localStorage
+
 export const clearAuthTokens = () => {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('userRole');
 };
 
-// Generic API request function
+
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -65,15 +65,29 @@ async function apiRequest<T>(
   }
 }
 
-// Auth APIs
+interface UserData {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}
+
+
+interface Credentials{
+  email: string;
+  password: string;
+}
+
+
 export const authApi = {
-  register: (userData: { name: string; email: string; password: string; role: string }) =>
+  
+  register: (userData: UserData) =>
     apiRequest('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     }),
 
-  login: (credentials: { email: string; password: string }) =>
+  login: (credentials: Credentials) =>
     apiRequest<{ accessToken: string; refreshToken: string; user: any }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
@@ -86,7 +100,7 @@ export const authApi = {
     }),
 };
 
-// User APIs
+
 export const userApi = {
   getProfile: () => apiRequest('/users/profile'),
   
@@ -95,7 +109,7 @@ export const userApi = {
   getRideById: (rideId: string) => apiRequest(`/users/rides/${rideId}`),
 };
 
-// Rider APIs
+
 export const riderApi = {
   requestRide: (rideData: {
     pickup: { lat: number; lng: number; address: string };
@@ -116,7 +130,7 @@ export const riderApi = {
   getRideById: (rideId: string) => apiRequest(`/riders/${rideId}`),
 };
 
-// Driver APIs
+
 export const driverApi = {
   acceptRide: (rideId: string) =>
     apiRequest(`/drivers/${rideId}/accept`, {
@@ -145,7 +159,7 @@ export const driverApi = {
   getRideById: (rideId: string) => apiRequest(`/drivers/${rideId}`),
 };
 
-// Admin APIs
+
 export const adminApi = {
   listUsers: () => apiRequest('/admin/users'),
   
