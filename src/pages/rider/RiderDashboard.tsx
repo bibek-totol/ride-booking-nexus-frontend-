@@ -7,6 +7,9 @@ import { Label } from '@/components/ui/label';
 import { MapPin, Navigation, Loader2 } from 'lucide-react';
 import { riderApi } from '@/lib/api';
 import { toast } from 'sonner';
+import { getAddressFromCoords, getCoordsFromAddress } from '@/lib/geocode';
+
+
 
 export default function RiderDashboard() {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +42,7 @@ export default function RiderDashboard() {
         toast.error(response.error);
       } else {
         toast.success('Ride requested successfully! A driver will be assigned soon.');
-        // Clear form
+        
         setPickupAddress('');
         setPickupLat('');
         setPickupLng('');
@@ -54,12 +57,65 @@ export default function RiderDashboard() {
     }
   };
 
+
+  const handlePickupCoordsChange = async (lat: string, lng: string) => {
+  setPickupLat(lat);
+  setPickupLng(lng);
+
+  if (lat && lng) {
+    const address = await getAddressFromCoords(lat, lng);
+    setPickupAddress(address);
+    
+  }
+};
+
+
+
+const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+const handleDestAddressChange = (address: string) => {
+  setDestAddress(address);
+
+ 
+  if (typingTimeout) {
+    clearTimeout(typingTimeout);
+  }
+
+  
+  const timeout = setTimeout(async () => {
+    if (address.trim().length > 3) {
+      const { lat, lng, display_name } = await getCoordsFromAddress(address);
+      if (lat && lng) {
+        setDestLat(lat);
+        setDestLng(lng);
+         setDestAddress(display_name? display_name : address);
+        toast.success("Destination coordinates updated automatically!");
+      } else {
+        toast.error("Address not found. Please check and try again.");
+      }
+    }
+
+    
+    
+  }, 1100); 
+
+  setTypingTimeout(timeout);
+};
+
+
+
+
+
   const useCurrentLocation = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setPickupLat(position.coords.latitude.toString());
           setPickupLng(position.coords.longitude.toString());
+          handlePickupCoordsChange(
+            position.coords.latitude.toString(),
+            position.coords.longitude.toString()
+          );
           toast.success('Location captured!');
         },
         () => {
@@ -80,7 +136,7 @@ export default function RiderDashboard() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Request Ride Form */}
+         
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -91,7 +147,7 @@ export default function RiderDashboard() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleRequestRide} className="space-y-4">
-                {/* Pickup Location */}
+                
                 <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
                   <div className="flex items-center justify-between">
                     <Label className="text-base font-semibold">Pickup Location</Label>
@@ -110,8 +166,9 @@ export default function RiderDashboard() {
                     <Label htmlFor="pickupAddress">Address</Label>
                     <Input
                       id="pickupAddress"
-                      placeholder="123 Main St, City"
+                      placeholder="Press 'Use Current' or enter address manually"
                       value={pickupAddress}
+                      
                       onChange={(e) => setPickupAddress(e.target.value)}
                       required
                     />
@@ -124,9 +181,9 @@ export default function RiderDashboard() {
                         id="pickupLat"
                         type="number"
                         step="any"
-                        placeholder="12.9716"
+                        placeholder="Ex:12.9716"
                         value={pickupLat}
-                        onChange={(e) => setPickupLat(e.target.value)}
+                        onChange={(e) => handlePickupCoordsChange(e.target.value, pickupLng)}
                         required
                       />
                     </div>
@@ -136,16 +193,16 @@ export default function RiderDashboard() {
                         id="pickupLng"
                         type="number"
                         step="any"
-                        placeholder="77.5946"
+                        placeholder="Ex:77.5946"
                         value={pickupLng}
-                        onChange={(e) => setPickupLng(e.target.value)}
+                        onChange={(e) => handlePickupCoordsChange(pickupLat, e.target.value)}
                         required
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Destination */}
+               
                 <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
                   <Label className="text-base font-semibold">Destination</Label>
                   
@@ -153,9 +210,9 @@ export default function RiderDashboard() {
                     <Label htmlFor="destAddress">Address</Label>
                     <Input
                       id="destAddress"
-                      placeholder="456 Oak Ave, City"
+                      placeholder="Ex:BIRDEM General Hospital,Dhaka  or  Sample Road/Place, City"
                       value={destAddress}
-                      onChange={(e) => setDestAddress(e.target.value)}
+                       onChange={(e) => handleDestAddressChange(e.target.value)}
                       required
                     />
                   </div>
@@ -167,7 +224,7 @@ export default function RiderDashboard() {
                         id="destLat"
                         type="number"
                         step="any"
-                        placeholder="12.9352"
+                        placeholder="Ex:12.9352"
                         value={destLat}
                         onChange={(e) => setDestLat(e.target.value)}
                         required
@@ -179,7 +236,7 @@ export default function RiderDashboard() {
                         id="destLng"
                         type="number"
                         step="any"
-                        placeholder="77.6245"
+                        placeholder="Ex:77.6245"
                         value={destLng}
                         onChange={(e) => setDestLng(e.target.value)}
                         required
@@ -202,7 +259,7 @@ export default function RiderDashboard() {
             </CardContent>
           </Card>
 
-          {/* Info Card */}
+          
           <div className="space-y-4">
             <Card className="shadow-lg border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
               <CardHeader>

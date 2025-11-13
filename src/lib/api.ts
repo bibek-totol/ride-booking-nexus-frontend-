@@ -128,6 +128,8 @@ export const riderApi = {
   getRideHistory: () => apiRequest('/riders/history'),
   
   getRideById: (rideId: string) => apiRequest(`/riders/${rideId}`),
+  getCoords: (address: string) =>
+    apiRequest(`/riders/coords?address=${encodeURIComponent(address)}`),
 };
 
 
