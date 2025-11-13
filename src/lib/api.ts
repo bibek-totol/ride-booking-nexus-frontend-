@@ -1,0 +1,177 @@
+// API client configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+
+interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+// Get auth token from localStorage
+const getAuthToken = (): string | null => {
+  return localStorage.getItem('accessToken');
+};
+
+// Save auth tokens to localStorage
+export const saveAuthTokens = (accessToken: string, refreshToken?: string) => {
+  localStorage.setItem('accessToken', accessToken);
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+};
+
+// Clear auth tokens from localStorage
+export const clearAuthTokens = () => {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('userRole');
+};
+
+// Generic API request function
+async function apiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> {
+  const token = getAuthToken();
+  
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        error: data.message || data.error || 'An error occurred',
+      };
+    }
+
+    return { data };
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : 'Network error occurred',
+    };
+  }
+}
+
+// Auth APIs
+export const authApi = {
+  register: (userData: { name: string; email: string; password: string; role: string }) =>
+    apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    }),
+
+  login: (credentials: { email: string; password: string }) =>
+    apiRequest<{ accessToken: string; refreshToken: string; user: any }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    }),
+
+  refreshToken: (token: string) =>
+    apiRequest('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    }),
+};
+
+// User APIs
+export const userApi = {
+  getProfile: () => apiRequest('/users/profile'),
+  
+  getMyRides: () => apiRequest('/users/rides'),
+  
+  getRideById: (rideId: string) => apiRequest(`/users/rides/${rideId}`),
+};
+
+// Rider APIs
+export const riderApi = {
+  requestRide: (rideData: {
+    pickup: { lat: number; lng: number; address: string };
+    destination: { lat: number; lng: number; address: string };
+  }) =>
+    apiRequest('/riders/request', {
+      method: 'POST',
+      body: JSON.stringify(rideData),
+    }),
+
+  cancelRide: (rideId: string) =>
+    apiRequest(`/riders/${rideId}/cancel`, {
+      method: 'POST',
+    }),
+
+  getRideHistory: () => apiRequest('/riders/history'),
+  
+  getRideById: (rideId: string) => apiRequest(`/riders/${rideId}`),
+};
+
+// Driver APIs
+export const driverApi = {
+  acceptRide: (rideId: string) =>
+    apiRequest(`/drivers/${rideId}/accept`, {
+      method: 'POST',
+    }),
+
+  rejectRide: (rideId: string) =>
+    apiRequest(`/drivers/${rideId}/reject`, {
+      method: 'POST',
+    }),
+
+  updateRideStatus: (rideId: string, status: string) =>
+    apiRequest(`/drivers/${rideId}/status`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    }),
+
+  setAvailability: (available: boolean) =>
+    apiRequest('/drivers/availability', {
+      method: 'POST',
+      body: JSON.stringify({ available }),
+    }),
+
+  getEarningsHistory: () => apiRequest('/drivers/earnings'),
+  
+  getRideById: (rideId: string) => apiRequest(`/drivers/${rideId}`),
+};
+
+// Admin APIs
+export const adminApi = {
+  listUsers: () => apiRequest('/admin/users'),
+  
+  listDrivers: () => apiRequest('/admin/drivers'),
+  
+  listRides: () => apiRequest('/admin/rides'),
+  
+  approveDriver: (driverId: string) =>
+    apiRequest(`/admin/drivers/${driverId}/approve`, {
+      method: 'POST',
+    }),
+
+  suspendDriver: (driverId: string) =>
+    apiRequest(`/admin/drivers/${driverId}/suspend`, {
+      method: 'POST',
+    }),
+
+  blockUser: (userId: string) =>
+    apiRequest(`/admin/users/${userId}/block`, {
+      method: 'POST',
+    }),
+
+  unblockUser: (userId: string) =>
+    apiRequest(`/admin/users/${userId}/unblock`, {
+      method: 'POST',
+    }),
+
+  generateReport: () => apiRequest('/admin/reports'),
+};
