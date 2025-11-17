@@ -12,6 +12,22 @@ const getAuthToken = (): string | null => {
   return localStorage.getItem('accessToken');
 };
 
+// Checks whether a JWT access token is expired (with a small leeway)
+const isTokenExpired = (token: string | null) => {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (!payload.exp) return true;
+    const now = Math.floor(Date.now() / 1000);
+    // treat token as expired a few seconds before actual expiry to avoid races
+    return now > (payload.exp - 10);
+  } catch (e) {
+    return true;
+  }
+};
+
 
 export const saveAuthTokens = (accessToken: string, refreshToken?: string) => {
   localStorage.setItem('accessToken', accessToken);
@@ -33,6 +49,7 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const token = getAuthToken();
+ 
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -50,6 +67,8 @@ async function apiRequest<T>(
     });
 
     const data = await response.json();
+
+    
 
     if (!response.ok) {
       return {

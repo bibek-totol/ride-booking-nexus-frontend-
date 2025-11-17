@@ -26,7 +26,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
       <div className="w-full max-w-md">
-        {/* Logo and Title */}
+        
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-primary mb-4 shadow-lg">
             <Car className="h-8 w-8 text-white" />
@@ -88,16 +88,7 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        {/* Demo credentials info */}
-        <Card className="mt-4 border-info/20 bg-info/5">
-          <CardContent className="pt-4">
-            <p className="text-xs text-center text-muted-foreground">
-              <strong>Demo credentials:</strong> Use role@example.com with password123
-              <br />
-              (Replace 'role' with rider, driver, or admin)
-            </p>
-          </CardContent>
-        </Card>
+        
       </div>
     </div>
   );

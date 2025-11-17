@@ -72,6 +72,7 @@ const didFetch = useRef(false);
 
   const handleAcceptRide = async (rideId: string) => {
     try {
+      console.log("Accepting ride with ID:", rideId);
       const response = await driverApi.acceptRide(rideId);
       if (response.error) {
         toast.error(response.error);
@@ -233,7 +234,7 @@ const didFetch = useRef(false);
                     </div>
                   )}
 
-                  {(ride.status === 'accepted' || ride.status === 'requested') && (
+                  {ride.status === 'accepted'  && (
                     <div className="space-y-2 pt-2">
                       <p className="text-sm font-medium">Update Ride Status</p>
                       <Select
@@ -244,7 +245,7 @@ const didFetch = useRef(false);
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="accepted">Accepted</SelectItem>
+                          {/* <SelectItem value="accepted">Accepted</SelectItem> */}
                           <SelectItem value="picked_up">Picked Up</SelectItem>
                           <SelectItem value="completed">Completed</SelectItem>
                         </SelectContent>
