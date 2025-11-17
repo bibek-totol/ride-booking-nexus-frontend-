@@ -28,11 +28,12 @@ export default function AdminDrivers() {
   const fetchDrivers = async () => {
     try {
       const response = await adminApi.listDrivers();
+      console.log("Fetched drivers:", response);
       if (response.data) {
-        setDrivers(response.data as Driver[]);
+        setDrivers(response.data.drivers as Driver[]);
       } else if (response.error) {
         toast.error(response.error);
-        // Mock data for demonstration
+        
         setDrivers([
           {
             _id: '1',

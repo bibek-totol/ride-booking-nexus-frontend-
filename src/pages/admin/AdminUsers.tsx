@@ -13,8 +13,10 @@ interface User {
   name: string;
   email: string;
   role: string;
-  status?: string;
+  approved: boolean;
+  blocked: boolean;
   createdAt: string;
+  updatedAt: string;
 }
 
 export default function AdminUsers() {
@@ -28,11 +30,12 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     try {
       const response = await adminApi.listUsers();
+      console.log("Fetched users:", response);
       if (response.data) {
-        setUsers(response.data as User[]);
+        setUsers(response.data.users as User[]);
       } else if (response.error) {
         toast.error(response.error);
-        // Mock data for demonstration
+        
         setUsers([
           { _id: '1', name: 'John Doe', email: 'john@example.com', role: 'rider', status: 'active', createdAt: new Date().toISOString() },
           { _id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'rider', status: 'active', createdAt: new Date().toISOString() },

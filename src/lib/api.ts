@@ -138,12 +138,12 @@ export const riderApi = {
 export const driverApi = {
   acceptRide: (rideId: string) =>
     apiRequest(`/drivers/${rideId}/accept`, {
-      method: 'POST',
+      method: 'PUT',
     }),
 
   rejectRide: (rideId: string) =>
     apiRequest(`/drivers/${rideId}/reject`, {
-      method: 'POST',
+      method: 'PUT',
     }),
 
   updateRideStatus: (rideId: string, status: string) =>

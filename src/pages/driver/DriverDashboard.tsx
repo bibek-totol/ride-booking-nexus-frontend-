@@ -237,7 +237,7 @@ const didFetch = useRef(false);
                     <div className="space-y-2 pt-2">
                       <p className="text-sm font-medium">Update Ride Status</p>
                       <Select
-                        value={ride.status || "Select Status"}
+                        value={ride.status ?? 'Select Ride Status'}
                         onValueChange={(value) => handleUpdateStatus(ride._id, value)}
                       >
                         <SelectTrigger>

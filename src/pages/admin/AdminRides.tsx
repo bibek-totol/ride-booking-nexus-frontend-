@@ -29,8 +29,9 @@ export default function AdminRides() {
   const fetchRides = async () => {
     try {
       const response = await adminApi.listRides();
+      console.log("Fetched rides:", response.data.rides);
       if (response.data) {
-        setRides(response.data as Ride[]);
+        setRides(response.data.rides) ;
       } else if (response.error) {
         toast.error(response.error);
         // Mock data for demonstration
@@ -127,7 +128,7 @@ export default function AdminRides() {
                   ) : (
                     rides.map((ride) => (
                       <TableRow key={ride._id}>
-                        <TableCell className="font-medium">{ride.rider.name}</TableCell>
+                        <TableCell className="font-medium">{ride?.rider?.name}</TableCell>
                         <TableCell>
                           {ride.driver ? ride.driver.name : <span className="text-muted-foreground">Unassigned</span>}
                         </TableCell>
