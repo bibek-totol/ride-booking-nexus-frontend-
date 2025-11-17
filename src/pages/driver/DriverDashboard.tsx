@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { driverApi } from '@/lib/api';
+import { driverApi, userApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { MapPin, Check, X, Loader2, Clock, Navigation } from 'lucide-react';
+import { set } from 'date-fns';
 
 interface Ride {
   _id: string;
@@ -16,29 +17,58 @@ interface Ride {
   fare?: number;
   rider?: { name: string };
   createdAt: string;
+  
 }
 
 export default function DriverDashboard() {
   const [rides, setRides] = useState<Ride[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+const didFetch = useRef(false);
 
-  // Mock data for demonstration
-  useEffect(() => {
-    // In production, this would fetch from driverApi.getActiveRides()
+ useEffect(() => {
+
+  if (didFetch.current) return;  
+  didFetch.current = true;
+  const fetchRides = async () => {
+    try {
+      const response = await driverApi.getAllRides();
+      if (response.error) {
+        toast.error(response.error);
+        setIsLoading(false);
+        return;
+      }
+
+      const ridesArray = response.data.rides;
+
+      
+      const ridesWithUser = await Promise.all(
+        ridesArray.map(async (ride: any) => {
+          if (!ride.rider) return ride;
+         
+          console.log( "Fetching user for ride:", ride.rider);
+          const userResponse = await userApi.getUserById(ride.rider);
+
+          return {
+            ...ride,
+            rider: userResponse.data?.user || null,
+          };
+        })
+      );
+
+      setRides(ridesWithUser);
+      console.log("Fetched rides with user data:", ridesWithUser);
+      console.log("Current rides state:", rides);
+    } catch (err) {
+      toast.error("Failed to fetch rides");
+    }
+
     setIsLoading(false);
-    // Mock rides for UI demonstration
-    setRides([
-      {
-        _id: '1',
-        pickup: { address: '123 Main Street, Downtown' },
-        destination: { address: '456 Oak Avenue, Uptown' },
-        status: 'pending',
-        fare: 15.50,
-        rider: { name: 'John Doe' },
-        createdAt: new Date().toISOString(),
-      },
-    ]);
-  }, []);
+  };
+
+  fetchRides();
+}, []);
+
+
 
   const handleAcceptRide = async (rideId: string) => {
     try {
@@ -47,7 +77,7 @@ export default function DriverDashboard() {
         toast.error(response.error);
       } else {
         toast.success('Ride accepted!');
-        // Refresh rides list
+        
         setRides(rides.map(ride => 
           ride._id === rideId ? { ...ride, status: 'accepted' } : ride
         ));
@@ -145,7 +175,7 @@ export default function DriverDashboard() {
                     </div>
                     {ride.fare && (
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-primary">${ride.fare.toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-primary">$1500</p>
                         <p className="text-xs text-muted-foreground">Estimated fare</p>
                       </div>
                     )}
@@ -154,7 +184,7 @@ export default function DriverDashboard() {
                 <CardContent className="space-y-4">
                   {ride.rider && (
                     <div className="p-3 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground">Rider</p>
+                      <p className="text-sm text-muted-foreground">Rider Name</p>
                       <p className="font-medium">{ride.rider.name}</p>
                     </div>
                   )}
@@ -181,7 +211,9 @@ export default function DriverDashboard() {
                     </div>
                   </div>
 
-                  {ride.status === 'pending' && (
+                  
+
+                  {ride.status === "requested" && (
                     <div className="flex gap-2 pt-2">
                       <Button
                         className="flex-1"
@@ -201,11 +233,11 @@ export default function DriverDashboard() {
                     </div>
                   )}
 
-                  {(ride.status === 'accepted' || ride.status === 'picked_up') && (
+                  {(ride.status === 'accepted' || ride.status === 'requested') && (
                     <div className="space-y-2 pt-2">
                       <p className="text-sm font-medium">Update Ride Status</p>
                       <Select
-                        value={ride.status}
+                        value={ride.status || "Select Status"}
                         onValueChange={(value) => handleUpdateStatus(ride._id, value)}
                       >
                         <SelectTrigger>

@@ -28,6 +28,8 @@ export default function RiderRides() {
   const fetchRides = async () => {
     try {
       const response = await riderApi.getRideHistory();
+      console.log(response);
+      console.log(response.data);
       if (response.data) {
         setRides(response.data as Ride[]);
       } else if (response.error) {
@@ -96,7 +98,7 @@ export default function RiderRides() {
           </Card>
         ) : (
           <div className="grid gap-4">
-            {rides.map((ride) => (
+            {rides.rides.map((ride) => (
               <Card key={ride._id} className="shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">

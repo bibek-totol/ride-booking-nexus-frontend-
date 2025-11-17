@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useRef } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -71,37 +71,55 @@ export default function RiderDashboard() {
 
 
 
-const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
-const handleDestAddressChange = (address: string) => {
-  setDestAddress(address);
+  const handleDestAddressChange = (address: string) => {
+    setDestAddress(address);
+    console.log("Destination Address Input:", address);
 
- 
-  if (typingTimeout) {
-    clearTimeout(typingTimeout);
-  }
-
-  
-  const timeout = setTimeout(async () => {
-    if (address.trim().length > 3) {
-      const { lat, lng, display_name } = await getCoordsFromAddress(address);
-      if (lat && lng) {
-        setDestLat(lat);
-        setDestLng(lng);
-         setDestAddress(display_name? display_name : address);
-        toast.success("Destination coordinates updated automatically!");
-      } else {
-        toast.error("Address not found. Please check and try again.");
-      }
+    
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
     }
 
-    
-    
-  }, 1100); 
+  
+    typingTimeout.current = setTimeout(async () => {
+      const trimmed = address.trim();
 
-  setTypingTimeout(timeout);
-};
+    
+      if (!trimmed) {
+        setDestLat("");
+        setDestLng("");
+        setDestAddress("");
+        toast.error("Please fill in the address field.");
+        return;
+      }
 
+    
+      if (trimmed.length > 9) {
+        try {
+          const result = await getCoordsFromAddress(trimmed);
+
+          
+          if (result && result.lat && result.lng) {
+            setDestLat(result.lat);
+            setDestLng(result.lng);
+
+            
+            setDestAddress(result.display_name ? result.display_name : trimmed);
+
+            toast.success("Destination coordinates updated automatically!");
+          } else {
+            
+            toast.error("Address not found. Please check and try again.");
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error("Failed to fetch address. Please try again.");
+        }
+      }
+    }, 1200);
+  };
 
 
 

@@ -107,6 +107,8 @@ export const userApi = {
   getMyRides: () => apiRequest('/users/rides'),
   
   getRideById: (rideId: string) => apiRequest(`/users/rides/${rideId}`),
+
+  getUserById: (userId: string) => apiRequest(`/users/${userId}`),
 };
 
 
@@ -159,6 +161,10 @@ export const driverApi = {
   getEarningsHistory: () => apiRequest('/drivers/earnings'),
   
   getRideById: (rideId: string) => apiRequest(`/drivers/${rideId}`),
+
+
+
+  getAllRides: () => apiRequest('/drivers/rides'),
 };
 
 
