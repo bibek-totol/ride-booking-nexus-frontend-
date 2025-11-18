@@ -112,7 +112,23 @@ export const userApi = {
   getRideById: (rideId: string) => apiRequest(`/users/rides/${rideId}`),
 
   getUserById: (userId: string) => apiRequest(`/users/${userId}`),
-  
+
+  sendPasswordOtp: () =>
+    apiRequest('/users/password/otp', {
+      method: 'POST',
+    }),
+
+  verifyPasswordOtp: (otp: string) =>
+    apiRequest('/users/password/otp/verify', {
+      method: 'POST',
+      body: JSON.stringify({ otp }),
+    }),
+
+  changePassword: (newPassword: string) =>
+    apiRequest('/users/password', {
+      method: 'PATCH',
+      body: JSON.stringify({ password: newPassword }),
+    }),
 
   updateProfile: (data: { name?: string; email?: string; role?: string }) =>
     apiRequest('/users/profile', {

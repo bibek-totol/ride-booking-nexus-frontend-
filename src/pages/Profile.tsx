@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Card,
@@ -37,42 +37,65 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  
+  // Edit profile dialog state
   const [open, setOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editRole, setEditRole] = useState<"rider" | "driver" | "">("");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Load profile on mount
   useEffect(() => {
+    let mounted = true;
     const fetchProfile = async () => {
       try {
         const response = await userApi.getProfile();
-        if (response.data) {
+        if (!mounted) return;
+        if (response?.data) {
           setProfile(response.data);
-        } else if (response.error) {
+        } else if (response?.error) {
           toast.error(response.error);
-          setProfile(user);
+          setProfile(user || null);
+        } else {
+          setProfile(user || null);
         }
-      } catch (error) {
-        setProfile(user);
+      } catch (err) {
+        if (!mounted) return;
+        setProfile(user || null);
       } finally {
+        if (!mounted) return;
         setIsLoading(false);
       }
     };
 
     fetchProfile();
+    return () => {
+      mounted = false;
+    };
+    
   }, []);
 
   
   useEffect(() => {
-    if (open) {
-      const src = profile || user || {};
-      setEditName(src.name || "");
-      setEditEmail(src.email || "");
-      setEditRole((src.role as "rider" | "driver") || "");
-    }
-  }, [open, profile, user]);
+    const src = profile || user || {};
+    setEditName(src.name || "");
+    setEditEmail(src.email || "");
+    setEditRole((src.role as "rider" | "driver") || "");
+  }, [profile, user]);
+
+  
+  const handleEditDialogOpenChange = useCallback(
+    (val: boolean) => {
+      setOpen(val);
+      if (val) {
+        const src = profile || user || {};
+        setEditName(src.name || "");
+        setEditEmail(src.email || "");
+        setEditRole((src.role as "rider" | "driver") || "");
+      }
+    },
+    [profile, user]
+  );
 
   if (isLoading) {
     return (
@@ -89,13 +112,11 @@ export default function Profile() {
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Profile</h2>
-          <p className="text-muted-foreground">
-            Manage your account information
-          </p>
+          <p className="text-muted-foreground">Manage your account information</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          
+        
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -104,14 +125,11 @@ export default function Profile() {
               </CardTitle>
               <CardDescription>Your account details</CardDescription>
             </CardHeader>
+
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  value={profile?.name || user?.name || ""}
-                  readOnly
-                />
+                <Input id="name" value={profile?.name || user?.name || ""} readOnly />
               </div>
 
               <div className="space-y-2">
@@ -141,7 +159,8 @@ export default function Profile() {
                 </div>
               </div>
 
-              <Dialog open={open} onOpenChange={setOpen}>
+            
+              <Dialog open={open} onOpenChange={handleEditDialogOpenChange}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-full">
                     Edit Profile
@@ -151,39 +170,23 @@ export default function Profile() {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Edit Profile</DialogTitle>
-                    <DialogDescription>
-                      Update your name, email and account type.
-                    </DialogDescription>
+                    <DialogDescription>Update your name, email and account type.</DialogDescription>
                   </DialogHeader>
 
                   <div className="space-y-4 mt-2">
                     <div className="space-y-2">
                       <Label htmlFor="edit-name">Full Name</Label>
-                      <Input
-                        id="edit-name"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                      />
+                      <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="edit-email">Email Address</Label>
-                      <Input
-                        id="edit-email"
-                        type="email"
-                        value={editEmail}
-                        onChange={(e) => setEditEmail(e.target.value)}
-                      />
+                      <Input id="edit-email" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="edit-role">Account Type</Label>
-                      <Select
-                        value={editRole}
-                        onValueChange={(val) =>
-                          setEditRole(val as "rider" | "driver")
-                        }
-                      >
+                      <Select value={editRole} onValueChange={(val) => setEditRole(val as "rider" | "driver")}>
                         <SelectTrigger id="edit-role">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
@@ -200,15 +203,11 @@ export default function Profile() {
                       <DialogClose asChild>
                         <Button variant="ghost">Cancel</Button>
                       </DialogClose>
+
                       <div className="ml-auto">
                         <Button
                           onClick={async () => {
-                            
-                            if (
-                              !editName.trim() ||
-                              !editEmail.trim() ||
-                              !editRole
-                            ) {
+                            if (!editName.trim() || !editEmail.trim() || !editRole) {
                               toast.error("Please fill all fields");
                               return;
                             }
@@ -220,18 +219,15 @@ export default function Profile() {
                                 email: editEmail.trim(),
                                 role: editRole,
                               });
-                              if (res.error) {
+
+                              if (res?.error) {
                                 toast.error(res.error);
-                              } else if (res.data) {
+                              } else if (res?.data) {
                                 toast.success("Profile updated");
-                                
                                 setProfile(res.data);
                                 try {
-                                  localStorage.setItem(
-                                    "user",
-                                    JSON.stringify(res.data)
-                                  );
-                                } catch (e) {}
+                                  localStorage.setItem("user", JSON.stringify(res.data));
+                                } catch {}
                                 setOpen(false);
                               }
                             } catch (err) {
@@ -262,60 +258,198 @@ export default function Profile() {
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <span className="text-sm font-medium">Member Since</span>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date().toLocaleDateString()}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{new Date().toLocaleDateString()}</span>
                 </div>
+
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <span className="text-sm font-medium">Account Status</span>
-                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-success/20 text-success">
-                    Active
-                  </span>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-success/20 text-success">Active</span>
                 </div>
+
                 {user?.role === "rider" && (
                   <div className="flex items-center justify-between p-3 border rounded-lg">
                     <span className="text-sm font-medium">Total Rides</span>
                     <span className="text-sm font-bold">0</span>
                   </div>
                 )}
+
                 {user?.role === "driver" && (
                   <>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <span className="text-sm font-medium">
-                        Completed Rides
-                      </span>
+                      <span className="text-sm font-medium">Completed Rides</span>
                       <span className="text-sm font-bold">0</span>
                     </div>
                     <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <span className="text-sm font-medium">
-                        Total Earnings
-                      </span>
-                      <span className="text-sm font-bold text-success">
-                        $0.00
-                      </span>
+                      <span className="text-sm font-medium">Total Earnings</span>
+                      <span className="text-sm font-bold text-success">$0.00</span>
                     </div>
                   </>
                 )}
               </CardContent>
             </Card>
 
+            
             <Card className="shadow-lg border-warning/20 bg-gradient-to-br from-warning/5 to-warning/10">
               <CardHeader>
                 <CardTitle>Security</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Keep your account secure by using a strong password and
-                  enabling two-factor authentication.
+                  Keep your account secure by using a strong password and enabling two-factor authentication.
                 </p>
-                <Button variant="outline" className="w-full" disabled>
-                  Change Password (Coming Soon)
-                </Button>
+
+              
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                      Change Password (Secure 2FA)
+                    </Button>
+                  </DialogTrigger>
+
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Change Password</DialogTitle>
+                      <DialogDescription>A 6-digit OTP will be sent to your registered email.</DialogDescription>
+                    </DialogHeader>
+
+                    <PasswordChangeFlow />
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+
+function PasswordChangeFlow() {
+  const [step, setStep] = useState<"send" | "otp" | "newPass">("send");
+  const [otp, setOtp] = useState("");
+  const [newPass, setNewPass] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState<number | null>(null);
+
+  
+  useEffect(() => {
+    if (resendCountdown === null) return;
+    if (resendCountdown <= 0) {
+      setResendCountdown(null);
+      return;
+    }
+    const t = setTimeout(() => setResendCountdown((c) => (c ? c - 1 : 0)), 1000);
+    return () => clearTimeout(t);
+  }, [resendCountdown]);
+
+  const handleSendOtp = async () => {
+    setLoading(true);
+    try {
+      const res = await userApi.sendPasswordOtp();
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("OTP sent to your email!");
+        setStep("otp");
+        setResendCountdown(60); 
+      }
+    } catch (err) {
+      toast.error("Failed to send OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCountdown && resendCountdown > 0) return;
+    await handleSendOtp();
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp.trim()) return toast.error("Enter OTP");
+    setLoading(true);
+    try {
+      const res = await userApi.verifyPasswordOtp(otp.trim());
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("OTP verified!");
+        setStep("newPass");
+      }
+    } catch {
+      toast.error("Failed to verify OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPass.trim()) return toast.error("Enter new password");
+    if (newPass.length < 6) return toast.error("Password must be at least 6 characters");
+
+    setLoading(true);
+    try {
+      const res = await userApi.changePassword(newPass.trim());
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Password successfully updated!");
+        // reset flow
+        setStep("send");
+        setOtp("");
+        setNewPass("");
+      }
+    } catch {
+      toast.error("Failed to update password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 mt-4">
+      {step === "send" && (
+        <>
+          <div className="text-sm text-muted-foreground">
+            Click <strong>Send OTP</strong> to receive a 6-digit code on your registered email.
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handleSendOtp} className="flex-1" disabled={loading}>
+              {loading ? "Sending..." : "Send OTP"}
+            </Button>
+          </div>
+        </>
+      )}
+
+      {step === "otp" && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="otp">Enter OTP</Label>
+            <Input id="otp" placeholder="6-digit OTP" value={otp} onChange={(e) => setOtp(e.target.value)} />
+            <div className="flex gap-2">
+              <Button onClick={handleVerifyOtp} className="flex-1" disabled={loading}>
+                {loading ? "Verifying..." : "Verify OTP"}
+              </Button>
+              <Button onClick={handleResendOtp} variant="ghost" disabled={loading || (resendCountdown !== null && resendCountdown > 0)}>
+                {resendCountdown ? `Resend (${resendCountdown}s)` : "Resend"}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {step === "newPass" && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="newPass">New Password</Label>
+            <Input id="newPass" type="password" placeholder="Enter new password" value={newPass} onChange={(e) => setNewPass(e.target.value)} />
+            <Button onClick={handleChangePassword} className="w-full" disabled={loading}>
+              {loading ? "Updating..." : "Update Password"}
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
