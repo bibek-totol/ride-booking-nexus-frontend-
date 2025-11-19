@@ -37,6 +37,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           { icon: Car, label: 'Drivers', path: '/admin/drivers' },
           { icon: MapPin, label: 'Rides', path: '/admin/rides' },
           { icon: Shield, label: 'Reports', path: '/admin/reports' },
+          { icon: User, label: 'Profile', path: '/admin/profile' },
         ];
       default:
         return [];
@@ -47,7 +48,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      
       <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
@@ -74,7 +75,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </header>
 
       <div className="container flex gap-6 px-4 py-6">
-        {/* Sidebar */}
+        
         <aside className="w-64 shrink-0 hidden md:block">
           <nav className="space-y-1 sticky top-20">
             {navItems.map((item) => {
@@ -98,13 +99,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </nav>
         </aside>
 
-        {/* Main Content */}
+      
         <main className="flex-1 min-w-0">
           {children}
         </main>
       </div>
 
-      {/* Mobile Navigation */}
+    
       <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 z-50">
         <div className="flex justify-around py-2">
           {navItems.map((item) => {

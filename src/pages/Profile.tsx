@@ -186,7 +186,7 @@ export default function Profile() {
 
                     <div className="space-y-2">
                       <Label htmlFor="edit-role">Account Type</Label>
-                      <Select value={editRole} onValueChange={(val) => setEditRole(val as "rider" | "driver")}>
+                      <Select value={editRole}  disabled={user?.role == "admin"} onValueChange={(val) => setEditRole(val as "rider" | "driver")}>
                         <SelectTrigger id="edit-role">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
@@ -395,7 +395,7 @@ function PasswordChangeFlow() {
         toast.error(res.error);
       } else {
         toast.success("Password successfully updated!");
-        // reset flow
+        
         setStep("send");
         setOtp("");
         setNewPass("");

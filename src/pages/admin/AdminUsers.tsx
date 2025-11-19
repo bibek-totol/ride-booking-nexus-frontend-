@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { adminApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Users, Ban, CheckCircle, Loader2 } from 'lucide-react';
@@ -30,15 +43,35 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     try {
       const response = await adminApi.listUsers();
-      console.log("Fetched users:", response);
+      console.log('Fetched users:', response);
+
       if (response.data) {
         setUsers(response.data.users as User[]);
       } else if (response.error) {
         toast.error(response.error);
-        
+
+        // FIXED dummy data structure
         setUsers([
-          { _id: '1', name: 'John Doe', email: 'john@example.com', role: 'rider', status: 'active', createdAt: new Date().toISOString() },
-          { _id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'rider', status: 'active', createdAt: new Date().toISOString() },
+          {
+            _id: '1',
+            name: 'John Doe',
+            email: 'john@example.com',
+            role: 'rider',
+            approved: true,
+            blocked: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            _id: '2',
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+            role: 'rider',
+            approved: true,
+            blocked: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
         ]);
       }
     } catch (error) {
@@ -92,8 +125,11 @@ export default function AdminUsers() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Manage Users</h2>
-            <p className="text-muted-foreground">View and manage all registered users</p>
+            <p className="text-muted-foreground">
+              View and manage all registered users
+            </p>
           </div>
+
           <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
             <Users className="h-5 w-5 text-muted-foreground" />
             <span className="font-semibold">{users.length}</span>
@@ -104,8 +140,9 @@ export default function AdminUsers() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>User Directory</CardTitle>
-            <CardDescription>All registered riders in the system</CardDescription>
+            <CardDescription>All registered users in the system</CardDescription>
           </CardHeader>
+
           <CardContent>
             <div className="rounded-md border">
               <Table>
@@ -119,10 +156,14 @@ export default function AdminUsers() {
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
+
                 <TableBody>
                   {users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      <TableCell
+                        colSpan={6}
+                        className="text-center py-8 text-muted-foreground"
+                      >
                         No users found
                       </TableCell>
                     </TableRow>
@@ -131,27 +172,31 @@ export default function AdminUsers() {
                       <TableRow key={user._id}>
                         <TableCell className="font-medium">{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
+
                         <TableCell>
                           <Badge variant="outline" className="capitalize">
                             {user.role}
                           </Badge>
                         </TableCell>
+
                         <TableCell>
                           <Badge
                             className={
-                              user.status === 'blocked'
+                              user.blocked
                                 ? 'bg-destructive text-destructive-foreground'
                                 : 'bg-success text-success-foreground'
                             }
                           >
-                            {user.status || 'active'}
+                            {user.blocked ? 'blocked' : 'active'}
                           </Badge>
                         </TableCell>
+
                         <TableCell className="text-muted-foreground">
                           {new Date(user.createdAt).toLocaleDateString()}
                         </TableCell>
+
                         <TableCell className="text-right">
-                          {user.status === 'blocked' ? (
+                          {user.blocked ? (
                             <Button
                               size="sm"
                               variant="outline"

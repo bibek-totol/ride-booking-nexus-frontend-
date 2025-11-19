@@ -44,7 +44,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
-            {/* Rider Routes */}
+           
             <Route
               path="/rider"
               element={
@@ -70,7 +70,7 @@ const App = () => (
               }
             />
 
-            {/* Driver Routes */}
+           
             <Route
               path="/driver"
               element={
@@ -104,7 +104,7 @@ const App = () => (
               }
             />
 
-            {/* Admin Routes */}
+            
             <Route
               path="/admin"
               element={
@@ -146,7 +146,17 @@ const App = () => (
               }
             />
 
-            {/* 404 Route */}
+
+             <Route
+              path="/admin/profile"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+           
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
