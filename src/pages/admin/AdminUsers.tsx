@@ -50,28 +50,19 @@ export default function AdminUsers() {
       } else if (response.error) {
         toast.error(response.error);
 
-        // FIXED dummy data structure
+        
         setUsers([
           {
             _id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            role: 'rider',
+            name: 'Demo Name',
+            email: 'demo@example.com',
+            role: 'demo role',
             approved: true,
             blocked: false,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
-          {
-            _id: '2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            role: 'rider',
-            approved: true,
-            blocked: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
+          
         ]);
       }
     } catch (error) {

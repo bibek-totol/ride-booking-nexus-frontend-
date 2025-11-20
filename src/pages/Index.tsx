@@ -14,7 +14,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      {/* Header */}
+      
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -34,7 +34,7 @@ export default function Index() {
         </nav>
       </header>
 
-      {/* Hero Section */}
+     
       <section className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
           Your Ride, Your Way
@@ -57,7 +57,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Features Section */}
+     
       <section className="container mx-auto px-4 py-16">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card className="shadow-lg hover:shadow-xl transition-shadow border-0">
@@ -110,7 +110,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      
       <section className="container mx-auto px-4 py-20">
         <Card className="shadow-2xl border-0 bg-gradient-primary">
           <CardContent className="py-16 text-center text-white">
@@ -128,7 +128,7 @@ export default function Index() {
         </Card>
       </section>
 
-      {/* Footer */}
+     
       <footer className="container mx-auto px-4 py-8 border-t">
         <div className="text-center text-sm text-muted-foreground">
           <p>© 2024 RideBook. All rights reserved.</p>

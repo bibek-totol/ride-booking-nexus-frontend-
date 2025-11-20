@@ -6,22 +6,18 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-// Pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 
-// Rider Pages
 import RiderDashboard from "./pages/rider/RiderDashboard";
 import RiderRides from "./pages/rider/RiderRides";
 
-// Driver Pages
 import DriverDashboard from "./pages/driver/DriverDashboard";
 import DriverEarnings from "./pages/driver/DriverEarnings";
 import DriverAvailability from "./pages/driver/DriverAvailability";
 
-// Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDrivers from "./pages/admin/AdminDrivers";
@@ -29,6 +25,7 @@ import AdminRides from "./pages/admin/AdminRides";
 import AdminReports from "./pages/admin/AdminReports";
 
 import NotFound from "./pages/NotFound";
+import TrackRealtime from "./pages/rider/TrackRealtime";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +58,19 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+
+           
+
+
+            <Route
+              path="/rider/track-realtime"
+              element={
+                <ProtectedRoute allowedRoles={['rider']}>
+                  <TrackRealtime />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/rider/profile"
               element={
@@ -95,6 +105,18 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+
+
+            <Route
+              path="/driver/track-realtime"
+              element={
+                <ProtectedRoute allowedRoles={['driver']}>
+                  <TrackRealtime />
+                </ProtectedRoute>
+              }
+            />
+
+
             <Route
               path="/driver/profile"
               element={

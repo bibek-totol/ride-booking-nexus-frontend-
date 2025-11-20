@@ -21,6 +21,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         return [
           { icon: MapPin, label: 'Request Ride', path: '/rider' },
           { icon: History, label: 'My Rides', path: '/rider/rides' },
+          { icon: MapPin, label: 'Track Realtime', path: '/rider/track-realtime' }, 
           { icon: User, label: 'Profile', path: '/rider/profile' },
         ];
       case 'driver':
@@ -28,6 +29,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           { icon: MapPin, label: 'Active Rides', path: '/driver' },
           { icon: DollarSign, label: 'Earnings', path: '/driver/earnings' },
           { icon: ToggleLeft, label: 'Availability', path: '/driver/availability' },
+           { icon: MapPin, label: 'Track Realtime', path: '/driver/track-realtime' },
           { icon: User, label: 'Profile', path: '/driver/profile' },
         ];
       case 'admin':

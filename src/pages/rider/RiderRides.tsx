@@ -14,7 +14,7 @@ interface Ride {
   status: string;
   fare?: number;
   createdAt: string;
-  driver?: { name: string };
+  driver?: { name: string; email?: string };
 }
 
 export default function RiderRides() {
@@ -29,7 +29,6 @@ export default function RiderRides() {
     try {
       const response = await riderApi.getRideHistory();
       console.log(response);
-      console.log(response.data);
       if (response.data) {
         setRides(response.data as Ride[]);
       } else if (response.error) {
@@ -59,6 +58,7 @@ export default function RiderRides() {
   const getStatusColor = (status: string) => {
     const colors: { [key: string]: string } = {
       pending: 'bg-warning text-warning-foreground',
+      requested: 'bg-warning text-warning-foreground',
       accepted: 'bg-info text-info-foreground',
       picked_up: 'bg-primary text-primary-foreground',
       completed: 'bg-success text-success-foreground',
@@ -93,7 +93,7 @@ export default function RiderRides() {
               <p className="text-sm text-muted-foreground mb-4">
                 Request your first ride to get started!
               </p>
-              <Button onClick={() => window.location.href = '/rider'}>Request Ride</Button>
+              <Button onClick={() => (window.location.href = '/rider')}>Request Ride</Button>
             </CardContent>
           </Card>
         ) : (
@@ -112,8 +112,13 @@ export default function RiderRides() {
                         <Clock className="h-4 w-4" />
                         {new Date(ride.createdAt).toLocaleString()}
                       </CardDescription>
+                      {(ride.status === 'pending' || ride.status === 'requested') && (
+                        <p className="text-sm text-muted-foreground">
+                          You can cancel this ride anytime before it's accepted.
+                        </p>
+                      )}
                     </div>
-                    {ride.status === 'pending' && (
+                    {(ride.status === 'pending' || ride.status === 'requested') && (
                       <Button
                         variant="destructive"
                         size="sm"
@@ -153,6 +158,12 @@ export default function RiderRides() {
                       <div className="text-sm">
                         <span className="text-muted-foreground">Driver: </span>
                         <span className="font-medium">{ride.driver.name}</span>
+                        {ride.driver.email && (
+                          <>
+                            <span className="text-muted-foreground"> | Email: </span>
+                            <span className="font-medium">{ride.driver.email}</span>
+                          </>
+                        )}
                       </div>
                     )}
                     {ride.fare && (

@@ -51,7 +51,7 @@ async function apiRequest<T>(
     });
 
     const data = await response.json();
-
+    console.log('API Response:', data);
     
 
     if (!response.ok) {
