@@ -24,24 +24,33 @@ export default function DriverEarnings() {
   const fetchEarnings = async () => {
     try {
       const response = await driverApi.getEarningsHistory();
+
+      
+      let earningsData: Earning[] = [];
       if (response.data) {
-        const earningsData = response.data as Earning[];
-        setEarnings(earningsData);
-        const total = earningsData.reduce((sum, e) => sum + e.amount, 0);
-        setTotalEarnings(total);
+        earningsData = Array.isArray(response.data) ? response.data : [];
       } else if (response.error) {
         toast.error(response.error);
-        // Set mock data for demonstration
-        const mockEarnings = [
-          { _id: '1', amount: 25.50, date: new Date().toISOString(), rideId: 'R001' },
+        
+        earningsData = [
+          { _id: '1', amount: 25.5, date: new Date().toISOString(), rideId: 'R001' },
           { _id: '2', amount: 18.75, date: new Date(Date.now() - 86400000).toISOString(), rideId: 'R002' },
-          { _id: '3', amount: 32.00, date: new Date(Date.now() - 172800000).toISOString(), rideId: 'R003' },
+          { _id: '3', amount: 32.0, date: new Date(Date.now() - 172800000).toISOString(), rideId: 'R003' },
         ];
-        setEarnings(mockEarnings);
-        setTotalEarnings(mockEarnings.reduce((sum, e) => sum + e.amount, 0));
       }
+
+      setEarnings(earningsData);
+      setTotalEarnings(earningsData.reduce((sum, e) => sum + e.amount, 0));
     } catch (error) {
       toast.error('Failed to load earnings');
+      
+      const mockEarnings: Earning[] = [
+        { _id: '1', amount: 25.5, date: new Date().toISOString(), rideId: 'R001' },
+        { _id: '2', amount: 18.75, date: new Date(Date.now() - 86400000).toISOString(), rideId: 'R002' },
+        { _id: '3', amount: 32.0, date: new Date(Date.now() - 172800000).toISOString(), rideId: 'R003' },
+      ];
+      setEarnings(mockEarnings);
+      setTotalEarnings(mockEarnings.reduce((sum, e) => sum + e.amount, 0));
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +74,7 @@ export default function DriverEarnings() {
           <p className="text-muted-foreground">Track your income and ride history</p>
         </div>
 
-        {/* Summary Cards */}
+        
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -103,20 +112,14 @@ export default function DriverEarnings() {
           </Card>
         </div>
 
-        {/* Earnings List */}
+      
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>Recent Earnings</CardTitle>
             <CardDescription>Your earnings from completed rides</CardDescription>
           </CardHeader>
           <CardContent>
-            {earnings.length === 0 ? (
-              <div className="text-center py-8">
-                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No earnings yet</p>
-                <p className="text-sm text-muted-foreground">Complete rides to start earning</p>
-              </div>
-            ) : (
+            {Array.isArray(earnings) && earnings.length > 0 ? (
               <div className="space-y-3">
                 {earnings.map((earning) => (
                   <div
@@ -137,6 +140,12 @@ export default function DriverEarnings() {
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">No earnings yet</p>
+                <p className="text-sm text-muted-foreground">Complete rides to start earning</p>
               </div>
             )}
           </CardContent>

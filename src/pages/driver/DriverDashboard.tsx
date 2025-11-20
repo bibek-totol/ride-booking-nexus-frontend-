@@ -214,9 +214,21 @@ const didFetch = useRef(false);
 
                   
 
-                  {ride.status === "requested" && (
+                  {ride.status === "requested" || ride.status === "pending" && (
                     <div className="flex gap-2 pt-2">
-                      <Button
+
+                      {
+                        ride.status === "accepted" ?(<>
+                        <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => handleRejectRide(ride._id)}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Reject
+                      </Button>
+                        </>):(<>
+                        <Button
                         className="flex-1"
                         onClick={() => handleAcceptRide(ride._id)}
                       >
@@ -231,6 +243,9 @@ const didFetch = useRef(false);
                         <X className="h-4 w-4 mr-2" />
                         Reject
                       </Button>
+                        </>)
+                      }
+                      
                     </div>
                   )}
 
