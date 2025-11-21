@@ -7,19 +7,10 @@ import { adminApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { MapPin, Loader2 } from 'lucide-react';
 
-interface Ride {
-  _id: string;
-  rider: { name: string };
-  driver?: { name: string };
-  pickup: { address: string };
-  destination: { address: string };
-  status: string;
-  fare?: number;
-  createdAt: string;
-}
+
 
 export default function AdminRides() {
-  const [rides, setRides] = useState<Ride[]>([]);
+  const [rides, setRides] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,33 +20,11 @@ export default function AdminRides() {
   const fetchRides = async () => {
     try {
       const response = await adminApi.listRides();
-      console.log("Fetched rides:", response.data.rides);
+      console.log(response);
       if (response.data) {
-        setRides(response.data.rides) ;
+        setRides(response.data.rides);
       } else if (response.error) {
         toast.error(response.error);
-        // Mock data for demonstration
-        setRides([
-          {
-            _id: '1',
-            rider: { name: 'John Doe' },
-            driver: { name: 'Mike Johnson' },
-            pickup: { address: '123 Main St' },
-            destination: { address: '456 Oak Ave' },
-            status: 'completed',
-            fare: 25.50,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            _id: '2',
-            rider: { name: 'Jane Smith' },
-            pickup: { address: '789 Elm St' },
-            destination: { address: '321 Pine Rd' },
-            status: 'pending',
-            fare: 18.75,
-            createdAt: new Date().toISOString(),
-          },
-        ]);
       }
     } catch (error) {
       toast.error('Failed to load rides');
@@ -111,7 +80,10 @@ export default function AdminRides() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Rider</TableHead>
+                    <TableHead>Rider Email</TableHead>
                     <TableHead>Driver</TableHead>
+                    <TableHead>Driver Email</TableHead>
+                    <TableHead>Driver Location</TableHead>
                     <TableHead>Route</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Fare</TableHead>
@@ -121,17 +93,41 @@ export default function AdminRides() {
                 <TableBody>
                   {rides.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                         No rides found
                       </TableCell>
                     </TableRow>
                   ) : (
                     rides.map((ride) => (
                       <TableRow key={ride._id}>
-                        <TableCell className="font-medium">{ride?.rider?.name}</TableCell>
-                        <TableCell>
-                          {ride.driver ? ride.driver.name : <span className="text-muted-foreground">Unassigned</span>}
+                        <TableCell className="font-medium">{ride.rider?.name}</TableCell>
+                         
+                         <TableCell>
+                          {ride.rider?.email || (
+                            <span className="text-muted-foreground">N/A</span>
+                          )}
                         </TableCell>
+
+                        {/* Driver Name */}
+                        <TableCell>
+                          {ride.driver?.name || (
+                            <span className="text-muted-foreground">Unassigned</span>
+                          )}
+                        </TableCell>
+
+                        {/* Driver Email */}
+                        <TableCell>
+                          {ride.driver?.email || (
+                            <span className="text-muted-foreground">N/A</span>
+                          )}
+                        </TableCell>
+
+                        {/* Driver Location */}
+                        <TableCell>
+                          <span className="text-muted-foreground">{ride.driverLocation.address}</span>
+                        </TableCell>
+
+                        {/* Route */}
                         <TableCell>
                           <div className="text-sm space-y-1">
                             <div className="flex items-center gap-1">
@@ -144,14 +140,20 @@ export default function AdminRides() {
                             </div>
                           </div>
                         </TableCell>
+
+                        {/* Status */}
                         <TableCell>
                           <Badge className={getStatusColor(ride.status)}>
                             {ride.status.replace('_', ' ').toUpperCase()}
                           </Badge>
                         </TableCell>
+
+                        {/* Fare */}
                         <TableCell className="font-medium">
                           {ride.fare ? `$${ride.fare.toFixed(2)}` : 'N/A'}
                         </TableCell>
+
+                        {/* Date */}
                         <TableCell className="text-muted-foreground">
                           {new Date(ride.createdAt).toLocaleDateString()}
                         </TableCell>

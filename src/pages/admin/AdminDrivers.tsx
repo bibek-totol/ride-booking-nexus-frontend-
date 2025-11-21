@@ -8,17 +8,10 @@ import { adminApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Car, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-interface Driver {
-  _id: string;
-  name: string;
-  email: string;
-  status: string;
-  vehicle?: { make: string; model: string; plate: string };
-  createdAt: string;
-}
+
 
 export default function AdminDrivers() {
-  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -43,14 +36,7 @@ export default function AdminDrivers() {
             vehicle: { make: 'Toyota', model: 'Camry', plate: 'ABC123' },
             createdAt: new Date().toISOString(),
           },
-          {
-            _id: '2',
-            name: 'Sarah Williams',
-            email: 'sarah@example.com',
-            status: 'pending',
-            vehicle: { make: 'Honda', model: 'Civic', plate: 'XYZ789' },
-            createdAt: new Date().toISOString(),
-          },
+          
         ]);
       }
     } catch (error) {
@@ -166,7 +152,7 @@ export default function AdminDrivers() {
                         </TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(driver.status)}>
-                            {driver.status}
+                            {driver.accepted ? 'active' : 'inactive'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">

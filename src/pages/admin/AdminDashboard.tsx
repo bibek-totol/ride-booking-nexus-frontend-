@@ -182,12 +182,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-sm font-medium">System Status</span>
-                <span className="px-2 py-1 text-xs font-medium rounded-full bg-success/20 text-success">
-                  Operational
-                </span>
-              </div>
+              
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <span className="text-sm font-medium">Active Drivers Online</span>
                 <span className="px-2 py-1 text-xs font-medium rounded-full bg-info/20 text-info">
