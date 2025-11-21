@@ -107,7 +107,7 @@ export const authApi = {
 export const userApi = {
   getProfile: () => apiRequest('/users/profile'),
   
-  getMyRides: () => apiRequest('/users/rides'),
+  getAcceptedRides: () => apiRequest('/users/acceptedrides'),
   
   getRideById: (rideId: string) => apiRequest(`/users/rides/${rideId}`),
 
@@ -162,10 +162,12 @@ export const riderApi = {
 
 
 export const driverApi = {
-  acceptRide: (rideId: string) =>
-    apiRequest(`/drivers/${rideId}/accept`, {
-      method: 'PUT',
-    }),
+  acceptRide: (rideId: string, body: any) =>
+  apiRequest(`/drivers/${rideId}/accept`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  }),
+
 
   rejectRide: (rideId: string) =>
     apiRequest(`/drivers/${rideId}/reject`, {

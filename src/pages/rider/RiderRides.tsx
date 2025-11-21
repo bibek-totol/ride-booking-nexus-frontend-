@@ -156,7 +156,7 @@ export default function RiderRides() {
                   <div className="flex items-center justify-between pt-3 border-t">
                     {ride.driver && (
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Driver: </span>
+                        <span className="text-muted-foreground">Driver Name: </span>
                         <span className="font-medium">{ride.driver.name}</span>
                         {ride.driver.email && (
                           <>
