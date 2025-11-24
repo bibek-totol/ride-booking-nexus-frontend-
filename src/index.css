@@ -18,9 +18,16 @@ All colors MUST be HSL.
     --popover-foreground: 222 47% 11%;
 
     /* Primary blue - trustworthy and professional */
-    --primary: 217 91% 60%;
+    
     --primary-foreground: 0 0% 100%;
     --primary-hover: 217 91% 55%;
+
+
+    --primary: 199 89% 48%;          /* Main brand blue */
+--primary-glow: 204 94% 60%;     /* Bright electric blue */
+--secondary: 217 91% 60%;        /* Supporting cool blue */
+
+
     
     /* Accent orange - action and energy */
     --accent: 25 95% 53%;
@@ -40,7 +47,7 @@ All colors MUST be HSL.
     --info: 199 89% 48%;
     --info-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
+    
     --secondary-foreground: 222 47% 11%;
 
     --muted: 220 13% 91%;
@@ -70,6 +77,32 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217 91% 60%;
+
+
+  /* --gradient-hero: linear-gradient(135deg, hsl(199 89% 48%), hsl(204 94% 60%)); */
+   --gradient-hero: linear-gradient(135deg, hsl(199, 89%, 48%) 0%, hsl(217, 91%, 60%) 50%, hsl(236, 72%, 65%) 100%);
+--gradient-card: linear-gradient(145deg, hsl(217 91% 60%), hsl(199 89% 48%));
+--gradient-cta: linear-gradient(135deg, hsl(199 89% 48%), hsl(175 60% 51%));
+--gradient-glow: radial-gradient(circle at 50% 50%, hsl(204 94% 60% / 0.6), hsl(199 89% 48% / 0));
+
+
+--glass-bg: hsl(0 0% 100% / 0.7);
+--glass-border: hsl(0 0% 100% / 0.18);
+--glass-blur: 12px;
+
+
+--shadow-elegant: 0 8px 24px hsl(199 89% 48% / 0.15);
+--shadow-glow: 0 0 18px hsl(204 94% 60% / 0.55);
+--shadow-card: 0 8px 16px hsl(222 47% 11% / 0.08);
+
+
+--transition-smooth: 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+--transition-bounce: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+
+
+
+    
   }
 
   .dark {

@@ -39,8 +39,8 @@ export default function Login() {
       <div className="w-full max-w-md">
         
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-primary mb-4 shadow-lg">
-            <Car className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-hero mb-4 shadow-lg">
+            <Car className="h-8 w-8 text-white " />
           </div>
           <h1 className="text-3xl font-bold text-foreground">RideBook</h1>
           <p className="text-muted-foreground mt-2">Welcome back! Log in to continue</p>
@@ -85,7 +85,7 @@ export default function Login() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-gradient-hero" disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
