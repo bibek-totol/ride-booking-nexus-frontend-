@@ -6,12 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Car, Mail, Lock } from 'lucide-react';
+import * as Dialog from '@radix-ui/react-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+
+  
+  const [open, setOpen] = useState(false);
+  const [role, setRole] = useState('rider');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +27,11 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google?role=${role}`;
   };
 
   return (
@@ -79,6 +90,17 @@ export default function Login() {
               </Button>
             </form>
 
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => setOpen(true)}
+              >
+                Sign in with Google
+              </Button>
+            </div>
+
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Don't have an account? </span>
               <Link to="/register" className="text-primary hover:underline font-medium">
@@ -88,7 +110,33 @@ export default function Login() {
           </CardContent>
         </Card>
 
-        
+        {/* Google OAuth Role Selection Modal */}
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+            <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background p-6 rounded-lg shadow-lg w-80">
+              <Dialog.Title className="text-lg font-bold mb-2">Select your role</Dialog.Title>
+              <Dialog.Description className="text-sm mb-4 text-muted-foreground">
+                Choose a role before signing in with Google
+              </Dialog.Description>
+
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rider">Rider</SelectItem>
+                  <SelectItem value="driver">Driver</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="mt-6 flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button onClick={handleGoogleLogin}>Complete</Button>
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
       </div>
     </div>
   );

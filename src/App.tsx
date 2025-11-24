@@ -26,6 +26,7 @@ import AdminReports from "./pages/admin/AdminReports";
 
 import NotFound from "./pages/NotFound";
 import TrackRealtime from "./pages/rider/TrackRealtime";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/oauth-success" element={<OAuthSuccess />} />
             
            
             <Route
