@@ -5,56 +5,41 @@ import { driverApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { DollarSign, TrendingUp, Calendar, Loader2 } from 'lucide-react';
 
-interface Earning {
-  _id: string;
-  amount: number;
-  date: string;
-  rideId: string;
-}
+
 
 export default function DriverEarnings() {
-  const [earnings, setEarnings] = useState<Earning[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [earnings, setEarnings] = useState<any[]>([]);
 
-  useEffect(() => {
-    fetchEarnings();
-  }, []);
 
-  const fetchEarnings = async () => {
-    try {
-      const response = await driverApi.getEarningsHistory();
+  const [stats, setStats] = useState<any>({
+  totalEarnings: 0,
+  totalRides: 0,
+  averageFare: 0,
+});
 
-      
-      let earningsData: Earning[] = [];
-      if (response.data) {
-        earningsData = Array.isArray(response.data) ? response.data : [];
-      } else if (response.error) {
-        toast.error(response.error);
-        
-        earningsData = [
-          { _id: '1', amount: 25.5, date: new Date().toISOString(), rideId: 'R001' },
-          { _id: '2', amount: 18.75, date: new Date(Date.now() - 86400000).toISOString(), rideId: 'R002' },
-          { _id: '3', amount: 32.0, date: new Date(Date.now() - 172800000).toISOString(), rideId: 'R003' },
-        ];
-      }
+useEffect(() => {
+  loadStats();
+}, []);
 
-      setEarnings(earningsData);
-      setTotalEarnings(earningsData.reduce((sum, e) => sum + e.amount, 0));
-    } catch (error) {
-      toast.error('Failed to load earnings');
-      
-      const mockEarnings: Earning[] = [
-        { _id: '1', amount: 25.5, date: new Date().toISOString(), rideId: 'R001' },
-        { _id: '2', amount: 18.75, date: new Date(Date.now() - 86400000).toISOString(), rideId: 'R002' },
-        { _id: '3', amount: 32.0, date: new Date(Date.now() - 172800000).toISOString(), rideId: 'R003' },
-      ];
-      setEarnings(mockEarnings);
-      setTotalEarnings(mockEarnings.reduce((sum, e) => sum + e.amount, 0));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const loadStats = async () => {
+  setIsLoading(true); 
+  try {
+    const res = await driverApi.getDriverEarnings();
+    const data:any = res.data;
+    setStats(data);
+    setEarnings(res.data.recentEarnings || []);
+  } catch (error) {
+    toast.error("Failed to load earnings");
+  } finally {
+    setIsLoading(false); 
+  }
+};
+
+ 
+
+
+  
 
   if (isLoading) {
     return (
@@ -82,7 +67,7 @@ export default function DriverEarnings() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">${totalEarnings.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-primary">{stats.totalEarnings} BDT</div>
               <p className="text-xs text-muted-foreground mt-1">All time earnings</p>
             </CardContent>
           </Card>
@@ -93,7 +78,7 @@ export default function DriverEarnings() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{earnings.length}</div>
+              <div className="text-2xl font-bold">{stats.totalRides}</div>
               <p className="text-xs text-muted-foreground mt-1">Completed rides</p>
             </CardContent>
           </Card>
@@ -105,7 +90,7 @@ export default function DriverEarnings() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${earnings.length > 0 ? (totalEarnings / earnings.length).toFixed(2) : '0.00'}
+                {stats.averageFare}BDT
               </div>
               <p className="text-xs text-muted-foreground mt-1">Per ride</p>
             </CardContent>
@@ -119,36 +104,41 @@ export default function DriverEarnings() {
             <CardDescription>Your earnings from completed rides</CardDescription>
           </CardHeader>
           <CardContent>
-            {Array.isArray(earnings) && earnings.length > 0 ? (
-              <div className="space-y-3">
-                {earnings.map((earning) => (
-                  <div
-                    key={earning._id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="space-y-1">
-                      <p className="font-medium">Ride #{earning.rideId}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(earning.date).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-success">
-                        +${earning.amount.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Earnings</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No earnings yet</p>
-                <p className="text-sm text-muted-foreground">Complete rides to start earning</p>
-              </div>
-            )}
-          </CardContent>
+  {isLoading ? (
+    <div className="flex items-center justify-center py-8">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  ) : earnings.length > 0 ? (
+    <div className="space-y-3">
+      {earnings.map((earning) => (
+        <div
+          key={earning._id}
+          className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+        >
+          <div className="space-y-1">
+            <p className="font-medium">Ride #{earning.rideId}</p>
+            <p className="text-sm text-muted-foreground">
+              {new Date(earning.date).toLocaleString()}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xl font-bold text-success">
+              +{earning.amount.toFixed(2)} BDT
+            </p>
+            <p className="text-xs text-muted-foreground">Earnings</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-8">
+      <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+      <p className="text-muted-foreground">No earnings yet</p>
+      <p className="text-sm text-muted-foreground">Complete rides to start earning</p>
+    </div>
+  )}
+</CardContent>
+
         </Card>
       </div>
     </DashboardLayout>

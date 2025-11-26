@@ -18,33 +18,64 @@ export default function AdminDrivers() {
     fetchDrivers();
   }, []);
 
+  
+
   const fetchDrivers = async () => {
-    try {
-      const response = await adminApi.listDrivers();
-      console.log("Fetched drivers:", response);
-      if (response.data) {
-        setDrivers(response.data.drivers as Driver[]);
-      } else if (response.error) {
-        toast.error(response.error);
-        
-        setDrivers([
-          {
-            _id: '1',
-            name: 'Mike Johnson',
-            email: 'mike@example.com',
-            status: 'active',
-            vehicle: { make: 'Toyota', model: 'Camry', plate: 'ABC123' },
-            createdAt: new Date().toISOString(),
-          },
-          
-        ]);
-      }
-    } catch (error) {
-      toast.error('Failed to load drivers');
-    } finally {
-      setIsLoading(false);
+  try {
+    const response = await adminApi.listDrivers();
+
+    if (response?.data?.drivers?.length > 0) {
+      const driverList = response.data.drivers ;
+
+      const driversWithEarnings = await Promise.all(
+        driverList.map(async (driver) => {
+          try {
+            const earn = await adminApi.getAllDriverEarnings(driver._id);
+            console.log(earn);
+            return {
+              ...driver,
+              totalRides: earn.data.totalRides,
+              totalEarnings: earn.data.totalEarnings,
+              averageFare: earn.data.averageFare,
+            };
+          } catch {
+            return { 
+              ...driver,
+              totalRides: 0,
+              totalEarnings: 0,
+              averageFare: 0,
+            };
+          }
+        })
+      );
+    console.log(driversWithEarnings);
+      setDrivers(driversWithEarnings);
+    } else {
+      
+      setDrivers([
+        {
+          _id: "demo1",
+          name: "Demo Driver",
+          email: "demo@fleet.com",
+          status: "active",
+          vehicle: { make: "Toyota", model: "Axio", plate: "D-1234" },
+          createdAt: new Date().toISOString(),
+          totalRides: 12,
+          totalEarnings: 5200,
+          averageFare: 430,
+        },
+      ]);
     }
-  };
+
+  } catch (error) {
+    toast.error("Failed loading drivers information");
+
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
 
   const handleApproveDriver = async (driverId: string) => {
     try {
@@ -120,6 +151,9 @@ export default function AdminDrivers() {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Total Rides</TableHead>   
+                   <TableHead>Total Earnings</TableHead>      
+                        <TableHead>Avg Fare</TableHead>          
                     <TableHead>Vehicle</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
@@ -138,6 +172,10 @@ export default function AdminDrivers() {
                       <TableRow key={driver._id}>
                         <TableCell className="font-medium">{driver.name}</TableCell>
                         <TableCell>{driver.email}</TableCell>
+                        <TableCell>{driver.totalRides ?? 0}</TableCell>
+                        <TableCell className='font-extrabold'>{driver.totalEarnings ?? 0}৳</TableCell>
+                         <TableCell className='font-extrabold'>{driver.averageFare ?? 0}৳</TableCell>
+
                         <TableCell>
                           {driver.vehicle ? (
                             <div className="text-sm">
@@ -168,7 +206,7 @@ export default function AdminDrivers() {
                               Approve
                             </Button>
                           )}
-                          {driver.status === 'active' && (
+                          {driver.status === 'accepted' && (
                             <Button
                               size="sm"
                               variant="destructive"
@@ -178,7 +216,7 @@ export default function AdminDrivers() {
                               Suspend
                             </Button>
                           )}
-                          {driver.status === 'suspended' && (
+                          {driver.status === 'rejected' && (
                             <Button
                               size="sm"
                               variant="outline"

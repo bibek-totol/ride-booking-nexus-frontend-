@@ -77,10 +77,17 @@ export default function Profile() {
 
   
   useEffect(() => {
-    const src = profile || user || {};
+    const src = profile || {};
     setEditName(src.name || "");
     setEditEmail(src.email || "");
     setEditRole((src.role as "rider" | "driver") || "");
+
+     
+
+    if (user.role === 'driver' && !user.approved) {
+      toast.info('You are not approved yet. Please wait...');
+    }
+ 
   }, [profile, user]);
 
   

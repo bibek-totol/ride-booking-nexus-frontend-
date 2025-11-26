@@ -150,7 +150,7 @@ export default function AdminRides() {
 
                         {/* Fare */}
                         <TableCell className="font-medium">
-                          {ride.fare ? `$${ride.fare.toFixed(2)}` : 'N/A'}
+                          {ride.price}BDT
                         </TableCell>
 
                         {/* Date */}

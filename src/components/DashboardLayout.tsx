@@ -24,14 +24,19 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           { icon: MapPin, label: 'Track Realtime', path: '/rider/track-realtime' }, 
           { icon: User, label: 'Profile', path: '/rider/profile' },
         ];
-      case 'driver':
-        return [
-          { icon: MapPin, label: 'Active Rides', path: '/driver' },
-          { icon: DollarSign, label: 'Earnings', path: '/driver/earnings' },
-          { icon: ToggleLeft, label: 'Availability', path: '/driver/availability' },
-           { icon: MapPin, label: 'Track Realtime', path: '/driver/track-realtime' },
-          { icon: User, label: 'Profile', path: '/driver/profile' },
-        ];
+    case 'driver':
+  return user.approved
+    ? [
+        { icon: MapPin, label: 'Active Rides', path: '/driver' },
+        { icon: DollarSign, label: 'Earnings', path: '/driver/earnings' },
+        { icon: ToggleLeft, label: 'Availability', path: '/driver/availability' },
+        { icon: MapPin, label: 'Track Realtime', path: '/driver/track-realtime' },
+        { icon: User, label: 'Profile', path: '/driver/profile' },
+      ]
+    : [
+        { icon: User, label: 'Profile', path: '/driver/profile' },
+      ];
+
       case 'admin':
         return [
           { icon: BarChart3, label: 'Dashboard', path: '/admin' },
@@ -54,7 +59,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-primary shadow-md">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-hero shadow-md">
               <Car className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -89,7 +94,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      ? 'bg-gradient-hero text-primary-foreground shadow-sm'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   )}
                 >

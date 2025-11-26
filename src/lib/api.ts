@@ -187,7 +187,7 @@ export const driverApi = {
       body: JSON.stringify({ available }),
     }),
 
-  getEarningsHistory: () => apiRequest('/drivers/earnings'),
+  getDriverEarnings: () => apiRequest('/drivers/earnings'),
   
   getRideById: (rideId: string) => apiRequest(`/drivers/${rideId}`),
 
@@ -225,4 +225,8 @@ export const adminApi = {
     }),
 
   generateReport: () => apiRequest('/admin/reports'),
+
+
+  getAllDriverEarnings: (driverId: string) => apiRequest(`/admin/drivers/${driverId}/earnings`)
+
 };
