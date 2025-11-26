@@ -6,15 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { driverApi, userApi } from '@/lib/api';
 import { toast } from 'sonner';
-import { MapPin, Check, X, Loader2, Clock, Navigation } from 'lucide-react';
+import { MapPin, Check, X, Loader2, Clock, Navigation,DollarSign } from 'lucide-react';
  import { getAddressFromCoords } from "@/lib/geocode";
 
 interface Ride {
   _id: string;
   pickup: { address: string };
   destination: { address: string };
+   price?: number;
   status: string;
-  fare?: number;
   rider?: { name: string };
   createdAt: string;
 }
@@ -177,12 +177,12 @@ const handleAcceptRide = async (rideId: string) => {
                       </CardDescription>
                     </div>
 
-                    {ride.fare && (
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-primary">$1500</p>
-                        <p className="text-xs text-muted-foreground">Estimated fare</p>
-                      </div>
-                    )}
+                    {ride.price && (
+                    <div className="mt-2 flex items-center gap-2 bg-primary/10 px-3 py-2 rounded-lg font-semibold text-primary w-fit">
+                      <DollarSign className="h-4 w-4" />
+                      {Math.round(ride.price)} BDT
+                    </div>
+                  )}
                   </div>
                 </CardHeader>
 

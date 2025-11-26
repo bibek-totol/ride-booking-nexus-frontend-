@@ -98,7 +98,7 @@ const Index = () => {
              <Link to="/login">
             <Button
               variant="ghost"
-              className="text-foreground transition-colors font-medium"
+              className="text-foreground transition-colors font-medium "
             >
               Sign In
             </Button>
@@ -183,7 +183,7 @@ const Index = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-primary/20 hover:border-primary hover:bg-primary/5 text-lg px-10 py-7 rounded-2xl transition-all duration-500 hover:scale-105 backdrop-blur-sm font-semibold"
+                className="border-2 border-primary/20 hover:border-primary text-foreground transition-colors  text-lg px-10 py-7 rounded-2xl  duration-500 hover:scale-105 backdrop-blur-sm font-semibold"
               >
                 Become a Driver
               </Button>
@@ -311,11 +311,12 @@ const Index = () => {
                 </motion.p>
 
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: false }}
-                  transition={{ delay: 0.4 }}
+                  transition={{ delay: 0.6 }}
                 >
+
                   <Button
                     size="lg"
                     className="bg-white text-primary hover:bg-white/90 shadow-glow hover:shadow-elegant transition-all duration-500 hover:scale-110 text-lg px-12 py-7 rounded-2xl group font-bold"

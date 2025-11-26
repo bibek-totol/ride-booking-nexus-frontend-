@@ -142,6 +142,7 @@ export const riderApi = {
   requestRide: (rideData: {
     pickup: { lat: number; lng: number; address: string };
     destination: { lat: number; lng: number; address: string };
+    price: number;
   }) =>
     apiRequest('/riders/request', {
       method: 'POST',

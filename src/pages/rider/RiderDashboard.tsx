@@ -1,4 +1,4 @@
-import { useState,useRef } from 'react';
+import { useState,useRef,useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,13 +12,63 @@ import { getAddressFromCoords, getCoordsFromAddress } from '@/lib/geocode';
 
 
 export default function RiderDashboard() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [pickupAddress, setPickupAddress] = useState('');
   const [pickupLat, setPickupLat] = useState('');
   const [pickupLng, setPickupLng] = useState('');
   const [destAddress, setDestAddress] = useState('');
   const [destLat, setDestLat] = useState('');
   const [destLng, setDestLng] = useState('');
+  const [priceFare, setPriceFare] = useState<number | null>(null);
+
+
+useEffect(() => {
+  if (pickupLat && pickupLng && destLat && destLng) {
+    calculateFare(pickupLat, pickupLng, destLat, destLng);
+  }
+}, [pickupLat, pickupLng, destLat, destLng]);
+
+
+
+function getDistanceKm(lat1:number, lon1:number, lat2:number, lon2:number) {
+  const R = 6371; 
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1*Math.PI/180) *
+    Math.cos(lat2*Math.PI/180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+
+
+  function calculateFare(pLat:string, pLng:string, dLat:string, dLng:string) {
+  if (pLat && pLng && dLat && dLng) {
+    const distance = getDistanceKm(
+      parseFloat(pLat),
+      parseFloat(pLng),
+      parseFloat(dLat),
+      parseFloat(dLng)
+    );
+
+    const BaseFare = 35;    
+    const PerKmRate = 35;   
+    const total = BaseFare + distance * PerKmRate;
+   
+
+    const finalFare = Math.round(total);  
+
+setPriceFare(finalFare);
+toast.success(`Distance: ${distance.toFixed(2)} km | Fare: ৳${finalFare}`);
+    
+  }
+}
+
 
   const handleRequestRide = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +86,8 @@ export default function RiderDashboard() {
           lng: parseFloat(destLng),
           address: destAddress,
         },
+        price: priceFare,
+        
       });
 
       if (response.error) {
@@ -244,7 +296,10 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                         step="any"
                         placeholder="Ex:12.9352"
                         value={destLat}
-                        onChange={(e) => setDestLat(e.target.value)}
+                        onChange={(e) =>{
+                         setDestLat(e.target.value);  
+                        
+                        } }
                         required
                       />
                     </div>
@@ -256,12 +311,26 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                         step="any"
                         placeholder="Ex:77.6245"
                         value={destLng}
-                        onChange={(e) => setDestLng(e.target.value)}
+                        onChange={(e) =>{
+                          setDestLng(e.target.value);
+                        
+                        } }
                         required
                       />
                     </div>
                   </div>
                 </div>
+
+
+                <div className="space-y-2">
+  <Label>Estimated Price Fare (BDT)</Label>
+  <Input
+    readOnly
+    value={priceFare !== null ? `৳ ${priceFare}` : "Auto Calculating..."}
+    className="font-bold text-green-600"
+  />
+</div>
+
 
                 <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
                   {isLoading ? (
@@ -285,7 +354,7 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-hero text-primary-foreground font-semibold">
                     1
                   </div>
                   <div>
@@ -297,7 +366,7 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                 </div>
 
                 <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-hero text-primary-foreground font-semibold">
                     2
                   </div>
                   <div>
@@ -309,7 +378,7 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                 </div>
 
                 <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-hero text-primary-foreground font-semibold">
                     3
                   </div>
                   <div>

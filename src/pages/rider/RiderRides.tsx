@@ -11,8 +11,8 @@ interface Ride {
   _id: string;
   pickup: { address: string };
   destination: { address: string };
+   price?: number;
   status: string;
-  fare?: number;
   createdAt: string;
   driver?: { name: string; email?: string };
 }
@@ -28,9 +28,9 @@ export default function RiderRides() {
   const fetchRides = async () => {
     try {
       const response = await riderApi.getRideHistory();
-      console.log(response);
       if (response.data) {
-        setRides(response.data as Ride[]);
+        console.log(response.data);
+       setRides((response.data as { rides: Ride[] })?.rides as Ride[]);
       } else if (response.error) {
         toast.error(response.error);
       }
@@ -98,7 +98,7 @@ export default function RiderRides() {
           </Card>
         ) : (
           <div className="grid gap-4">
-            {rides.rides.map((ride) => (
+            {rides.map((ride) => (
               <Card key={ride._id} className="shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -114,7 +114,7 @@ export default function RiderRides() {
                       </CardDescription>
                       {(ride.status === 'pending' || ride.status === 'requested') && (
                         <p className="text-sm text-muted-foreground">
-                          You can cancel this ride anytime before it's accepted.
+                          You can cancel this ride anytime before it gets accepted.
                         </p>
                       )}
                     </div>
@@ -130,49 +130,51 @@ export default function RiderRides() {
                     )}
                   </div>
                 </CardHeader>
+
                 <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-success/20 text-success">
-                        <MapPin className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Pickup</p>
-                        <p className="text-sm text-muted-foreground">{ride.pickup.address}</p>
-                      </div>
-                    </div>
 
-                    <div className="flex items-start gap-2">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-destructive/20 text-destructive">
-                        <MapPin className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Destination</p>
-                        <p className="text-sm text-muted-foreground">{ride.destination.address}</p>
-                      </div>
+              
+                  <div className="flex items-start gap-2">
+                    <div className="h-8 w-8 flex items-center justify-center bg-success/20 text-success rounded-full">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Pickup</p>
+                      <p className="text-sm text-muted-foreground">{ride.pickup.address}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t">
-                    {ride.driver && (
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">Driver Name: </span>
-                        <span className="font-medium">{ride.driver.name}</span>
-                        {ride.driver.email && (
-                          <>
-                            <span className="text-muted-foreground"> | Email: </span>
-                            <span className="font-medium">{ride.driver.email}</span>
-                          </>
-                        )}
-                      </div>
-                    )}
-                    {ride.fare && (
-                      <div className="flex items-center gap-1 text-lg font-bold text-primary">
-                        <DollarSign className="h-5 w-5" />
-                        {ride.fare.toFixed(2)}
-                      </div>
-                    )}
+                  
+                  <div className="flex items-start gap-2">
+                    <div className="h-8 w-8 flex items-center justify-center bg-destructive/20 text-destructive rounded-full">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Destination</p>
+                      <p className="text-sm text-muted-foreground">{ride.destination.address}</p>
+                    </div>
                   </div>
+
+                
+                  {ride.price && (
+                    <div className="mt-2 flex items-center gap-2 bg-primary/10 px-3 py-2 rounded-lg font-semibold text-primary w-fit">
+                      <DollarSign className="h-4 w-4" />
+                      {Math.round(ride.price)} BDT
+                    </div>
+                  )}
+
+                  
+                  {ride.driver && (
+                    <div className="text-sm mt-4 border-t pt-3">
+                      <span className="text-muted-foreground">Driver: </span>
+                      <span className="font-medium">{ride.driver.name}</span>
+                      {ride.driver.email && (
+                        <> <span className="text-muted-foreground"> | Email: </span>
+                          <span className="font-medium">{ride.driver.email}</span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
