@@ -37,14 +37,14 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Edit profile dialog state
+  
   const [open, setOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editRole, setEditRole] = useState<"rider" | "driver" | "">("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Load profile on mount
+  
   useEffect(() => {
     let mounted = true;
     const fetchProfile = async () => {

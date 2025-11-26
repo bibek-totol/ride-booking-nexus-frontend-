@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Car, LogOut, User, MapPin, History, DollarSign, ToggleLeft, Users, BarChart3, Shield } from 'lucide-react';
+import { Car, LogOut, User, MapPin, History, DollarSign, ToggleLeft, Users, BarChart3, Shield,BookCopy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DashboardLayoutProps {
@@ -35,6 +35,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       ]
     : [
         { icon: User, label: 'Profile', path: '/driver/profile' },
+         { icon: BookCopy, label: 'Form', path: '/driver/information-form' },
+        
       ];
 
       case 'admin':

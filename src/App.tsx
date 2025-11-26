@@ -27,6 +27,7 @@ import AdminReports from "./pages/admin/AdminReports";
 import NotFound from "./pages/NotFound";
 import TrackRealtime from "./pages/rider/TrackRealtime";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import DriverInformationForm from "./pages/driver/DriverInformationForm";
 
 const queryClient = new QueryClient();
 
@@ -127,6 +128,18 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+
+
+            <Route
+              path="/driver/information-form"
+              element={
+                <ProtectedRoute allowedRoles={['driver']}>
+                  <DriverInformationForm/>
+                </ProtectedRoute>
+              }
+            />
+
+            DriverInformationForm
 
             
             <Route
