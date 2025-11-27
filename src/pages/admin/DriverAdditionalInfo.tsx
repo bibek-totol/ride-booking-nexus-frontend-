@@ -5,10 +5,39 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { adminApi } from "@/lib/api";
+import Viewer from "react-viewer";
+import { Download } from "lucide-react";
+
 
 export default function DriverAdditionalInfo() {
   const [driversAdditional, setDriversAdditional] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+
+  const [visible, setVisible] = useState(false);
+const [activeImg, setActiveImg] = useState(null);
+
+const openViewer = (img:string) => {
+  setActiveImg(img);
+  setVisible(true);
+};
+
+
+const downloadImage = async (url: string, filename: string) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+};
+
+
 
   useEffect(() => {
     fetchDriverAdditionalData();
@@ -74,6 +103,7 @@ export default function DriverAdditionalInfo() {
                 <Table className="min-w-[900px]">
                   <TableHeader>
                     <TableRow>
+                      <TableHead>User ID</TableHead>
                       <TableHead>Name / Email</TableHead>
                       <TableHead>Phone</TableHead>
                       <TableHead>Address</TableHead>
@@ -81,8 +111,8 @@ export default function DriverAdditionalInfo() {
                       <TableHead>License</TableHead>
                       <TableHead>Vehicle</TableHead>
                       <TableHead>Experience</TableHead>
-                      <TableHead>License Image</TableHead>
-                      <TableHead>Registration Certificate</TableHead>
+                      <TableHead>License & Registration Certificate</TableHead>
+                
                     </TableRow>
                   </TableHeader>
                  <TableBody>
@@ -90,7 +120,13 @@ export default function DriverAdditionalInfo() {
     <TableRow 
       key={driver._id}
       className="hover:bg-muted/40 transition-colors cursor-pointer"
+
     >
+
+
+        <TableCell className="font-extrabold ">
+        {driver._id || "N/A"}
+      </TableCell>
       {/* NAME / EMAIL */}
       <TableCell>
         <p className="font-semibold text-foreground">{driver.user?.name || "N/A"}</p>
@@ -132,22 +168,55 @@ export default function DriverAdditionalInfo() {
       </TableCell>
 
       {/* LICENSE IMAGE */}
-      <TableCell>
-        {driver.licenseImg ? (
-          <img src={driver.licenseImg} className="h-12 w-20 object-cover rounded shadow-sm" />
-        ) : (
-          <Badge variant="outline" className="text-red-600 border-red-500">Missing</Badge>
-        )}
-      </TableCell>
+     <TableCell className="flex flex-col items-center gap-2">
+  {driver.licenseImg ? (
+    <>
+      <img
+        src={driver.licenseImg}
+        className="h-12 w-20 object-cover rounded shadow-sm cursor-pointer"
+        onClick={() => openViewer(driver.licenseImg)}
+      />
+
+      
+      <button
+        onClick={() => downloadImage(driver.licenseImg, `license_${driver.user?.name || "driver"}.jpg`)}
+        className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+      >
+        <Download size={16} /> Download
+      </button>
+    </>
+  ) : (
+    <Badge variant="outline" className="text-red-600 border-red-500">Missing</Badge>
+  )}
+</TableCell>
+
 
       {/* REG CERT IMAGE */}
-      <TableCell>
-        {driver.regCertImg ? (
-          <img src={driver.regCertImg} className="h-12 w-20 object-cover rounded shadow-sm" />
-        ) : (
-          <Badge variant="outline" className="text-red-600 border-red-500">Missing</Badge>
-        )}
-      </TableCell>
+
+       <TableCell className="flex flex-col items-center gap-2">
+  {driver.regCertImg ? (
+    <>
+      <img
+        src={driver.regCertImg}
+        className="h-12 w-20 object-cover rounded shadow-sm cursor-pointer"
+        onClick={() => openViewer(driver.regCertImg)}
+      />
+
+      
+      <button
+        onClick={() => downloadImage(driver.regCertImg, `vehicle_registration_${driver.user?.name || "driver"}.jpg`)}
+        className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+      >
+        <Download size={16} /> Download
+      </button>
+    </>
+  ) : (
+    <Badge variant="outline" className="text-red-600 border-red-500">Missing</Badge>
+  )}
+</TableCell>
+
+
+     
     </TableRow>
   ))}
 </TableBody>
@@ -158,6 +227,17 @@ export default function DriverAdditionalInfo() {
           </CardContent>
         </Card>
       </div>
+
+      <Viewer
+  visible={visible}
+  onClose={() => setVisible(false)}
+  images={[{ src: activeImg }]}
+  rotatable
+  scalable
+  downloadable
+/>
+
+
     </DashboardLayout>
   );
 }
