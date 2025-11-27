@@ -44,6 +44,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           { icon: BarChart3, label: 'Dashboard', path: '/admin' },
           { icon: Users, label: 'Users', path: '/admin/users' },
           { icon: Car, label: 'Drivers', path: '/admin/drivers' },
+           { icon: Car, label: 'Driver Additionals', path: '/admin/drivers-additional' },
+          
           { icon: MapPin, label: 'Rides', path: '/admin/rides' },
           { icon: Shield, label: 'Reports', path: '/admin/reports' },
           { icon: User, label: 'Profile', path: '/admin/profile' },

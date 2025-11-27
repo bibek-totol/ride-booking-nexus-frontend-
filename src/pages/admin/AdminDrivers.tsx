@@ -149,12 +149,13 @@ export default function AdminDrivers() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>User ID</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Total Rides</TableHead>   
                    <TableHead>Total Earnings</TableHead>      
                         <TableHead>Avg Fare</TableHead>          
-                    <TableHead>Vehicle</TableHead>
+                    
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -170,24 +171,14 @@ export default function AdminDrivers() {
                   ) : (
                     drivers.map((driver) => (
                       <TableRow key={driver._id}>
+                        <TableCell className='font-semibold'>{driver._id}</TableCell>
                         <TableCell className="font-medium">{driver.name}</TableCell>
                         <TableCell>{driver.email}</TableCell>
                         <TableCell>{driver.totalRides ?? 0}</TableCell>
                         <TableCell className='font-extrabold'>{driver.totalEarnings ?? 0}৳</TableCell>
                          <TableCell className='font-extrabold'>{driver.averageFare ?? 0}৳</TableCell>
 
-                        <TableCell>
-                          {driver.vehicle ? (
-                            <div className="text-sm">
-                              <p className="font-medium">
-                                {driver.vehicle.make} {driver.vehicle.model}
-                              </p>
-                              <p className="text-muted-foreground">{driver.vehicle.plate}</p>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">N/A</span>
-                          )}
-                        </TableCell>
+                      
                         <TableCell>
                           <Badge className={getStatusColor(driver.status)}>
                             {driver.accepted ? 'active' : 'inactive'}

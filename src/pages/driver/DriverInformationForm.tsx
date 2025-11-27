@@ -3,32 +3,87 @@ import React, { useState } from "react";
 import * as Form from "@radix-ui/react-form";
 import { CheckCircledIcon, UploadIcon } from "@radix-ui/react-icons";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { toast } from "sonner";
 
 export default function DriverInformationForm() {
-  const [formData, setFormData] = useState({
-    phone: "",
-    address: "",
-    nid: "",
-    license: "",
-    vehicleRegNo: "",
-    vehicleType: "",
-    vehicleModel: "",
-    experience: "",
-    licenseImg: null as File | null,
-    regCertImg: null as File | null,
-  });
+ const initialFormData = {
+  phone: "",
+  address: "",
+  nid: "",
+  license: "",
+  vehicleRegNo: "",
+  vehicleType: "",
+  vehicleModel: "",
+  experience: "",
+  licenseImg: null as File | null,
+  regCertImg: null as File | null,
+};
+
+const [formData, setFormData] = useState(initialFormData);
+const [submitting, setSubmitting] = useState(false);
+
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     const file = e.target.files?.[0] || null;
     setFormData({ ...formData, [key]: file });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    
-    console.log("Submitted Data:", formData);
-  };
+  if (submitting) return; 
+  setSubmitting(true);
+
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    toast.error("You are not logged in!");
+    setSubmitting(false);
+    return;
+  }
+
+  const form = new FormData();
+  form.append("phone", formData.phone);
+  form.append("address", formData.address);
+  form.append("nid", formData.nid);
+  form.append("license", formData.license);
+  form.append("vehicleRegNo", formData.vehicleRegNo);
+  form.append("vehicleType", formData.vehicleType);
+  form.append("vehicleModel", formData.vehicleModel);
+  form.append("experience", formData.experience);
+
+  if (formData.licenseImg) form.append("licenseImg", formData.licenseImg);
+  if (formData.regCertImg) form.append("regCertImg", formData.regCertImg);
+
+  const API_BASE_URL = 'http://localhost:4000/api';
+
+ 
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/drivers/additional-info`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      },
+      body: form,
+    });
+
+    const data = await res.json();
+    console.log("Response:", data);
+
+    if (data.data) {
+      toast.success("Driver info submitted successfully!");
+      setFormData(initialFormData);
+      setSubmitting(false); 
+    } else {
+      toast.error(data.error || "Failed!");
+      setSubmitting(false); 
+    }
+  } catch (err) {
+    toast.error("Something went wrong");
+    setSubmitting(false); 
+  }
+};
+
 
   return (
     <DashboardLayout>
@@ -192,11 +247,15 @@ export default function DriverInformationForm() {
         </div>
 
     
-        <Form.Submit asChild>
-          <button className="w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold p-3 rounded-xl mt-4 flex items-center justify-center gap-2">
-            <CheckCircledIcon /> Submit For Approval
-          </button>
-        </Form.Submit>
+      <Form.Submit asChild>
+  <button
+    disabled={submitting} 
+    className={`w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold p-3 rounded-xl mt-4 flex items-center justify-center gap-2 ${submitting ? "opacity-50 cursor-not-allowed" : ""}`}
+  >
+    <CheckCircledIcon /> {submitting ? "Submitted..." : "Submit For Approval"}
+  </button>
+</Form.Submit>
+
       </Form.Root>
     </div>
     </DashboardLayout>

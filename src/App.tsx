@@ -28,6 +28,7 @@ import NotFound from "./pages/NotFound";
 import TrackRealtime from "./pages/rider/TrackRealtime";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import DriverInformationForm from "./pages/driver/DriverInformationForm";
+import DriverAdditionalInfo from "./pages/admin/DriverAdditionalInfo";
 
 const queryClient = new QueryClient();
 
@@ -166,6 +167,17 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+
+
+           <Route
+              path="/admin/drivers-additional"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <DriverAdditionalInfo/>
+                </ProtectedRoute>
+              }
+            />
+            
             <Route
               path="/admin/rides"
               element={
