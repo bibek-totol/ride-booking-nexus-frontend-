@@ -6,7 +6,8 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { toast } from "sonner";
 
 export default function DriverInformationForm() {
- const initialFormData = {
+  const [submitting, setSubmitting] = useState(false);
+  const initialFormData = {
   phone: "",
   address: "",
   nid: "",
@@ -19,8 +20,11 @@ export default function DriverInformationForm() {
   regCertImg: null as File | null,
 };
 
-const [formData, setFormData] = useState(initialFormData);
-const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState(initialFormData);
+
+
+ 
+
 
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {

@@ -7,8 +7,17 @@ import { useAuth } from "@/contexts/AuthContext";
 
 
 const Index = () => {
-  const [scrolled, setScrolled] = useState(false);
+  
+const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
   const heroScale = useTransform(scrollY, [0, 300], [1, 0.95]);
 
@@ -19,14 +28,10 @@ const Index = () => {
   if (isAuthenticated && user) {
     return <Navigate to={`/${user.role}`} replace />;
   }
+  
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+
+
 
   const features = [
     {

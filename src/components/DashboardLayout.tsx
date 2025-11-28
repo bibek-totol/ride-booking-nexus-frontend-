@@ -12,6 +12,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  console.log(user);
 
   if (!user) return null;
 
@@ -25,7 +26,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           { icon: User, label: 'Profile', path: '/rider/profile' },
         ];
     case 'driver':
-  return user.approved
+  return user.approved 
     ? [
         { icon: MapPin, label: 'Active Rides', path: '/driver' },
         { icon: DollarSign, label: 'Earnings', path: '/driver/earnings' },
@@ -49,6 +50,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           { icon: MapPin, label: 'Rides', path: '/admin/rides' },
           { icon: Shield, label: 'Reports', path: '/admin/reports' },
           { icon: User, label: 'Profile', path: '/admin/profile' },
+          { icon: MapPin, label: 'Track Realtime', path: '/admin/track-realtime' },
         ];
       default:
         return [];

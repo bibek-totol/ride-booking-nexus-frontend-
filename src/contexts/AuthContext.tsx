@@ -63,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response.data) {
         saveAuthTokens(response.data.accessToken, response.data.refreshToken);
         const userData = response.data.user;
+        console.log(userData);
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
 

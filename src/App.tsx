@@ -205,6 +205,15 @@ const App = () => (
               }
             />
 
+            <Route
+              path="/admin/track-realtime"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <TrackRealtime />
+                </ProtectedRoute>
+              }
+            />
+
            
             <Route path="*" element={<NotFound />} />
           </Routes>
