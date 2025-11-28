@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Car, Mail, Lock } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -35,7 +37,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
+    
+     <div className="min-h-screen">
+      <Navbar/>
+    <div className="min-h-screen  flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
+      
       <div className="w-full max-w-md">
         
         <div className="text-center mb-8">
@@ -138,6 +144,8 @@ export default function Login() {
           </Dialog.Portal>
         </Dialog.Root>
       </div>
+    </div>
+    <Footer/>
     </div>
   );
 }

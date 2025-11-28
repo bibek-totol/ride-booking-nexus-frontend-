@@ -29,6 +29,9 @@ import TrackRealtime from "./pages/rider/TrackRealtime";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import DriverInformationForm from "./pages/driver/DriverInformationForm";
 import DriverAdditionalInfo from "./pages/admin/DriverAdditionalInfo";
+import FeaturesPage from "./pages/Features";
+import FAQPage from "./pages/FAQ";
+import ContactUsPage from "./pages/ContactUs";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +44,9 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
+             <Route path="/features" element={<FeaturesPage />} />
+          <Route path="/faq" element={<FAQPage/>} />
+          <Route path="/contact" element={<ContactUsPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/oauth-success" element={<OAuthSuccess />} />
