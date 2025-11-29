@@ -20,13 +20,13 @@ export default function AdminDrivers() {
 
   const fetchDrivers = async () => {
     try {
-      const response = await adminApi.listDrivers();
+      const response:any = await adminApi.listDrivers();
       if (response?.data?.drivers?.length > 0) {
         const driverList = response.data.drivers;
         const driversWithEarnings = await Promise.all(
           driverList.map(async (driver) => {
             try {
-              const earn = await adminApi.getAllDriverEarnings(driver._id);
+              const earn:any = await adminApi.getAllDriverEarnings(driver._id);
               return {
                 ...driver,
                 totalRides: earn.data.totalRides,

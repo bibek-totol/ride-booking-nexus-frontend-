@@ -34,9 +34,9 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const response = await adminApi.listUsers();
+      const response:any = await adminApi.listUsers();
       if (response.data) {
-        setUsers(response.data.users as any[]);
+        setUsers(response.data.users );
       } else if (response.error) {
         toast.error(response.error);
         setUsers([

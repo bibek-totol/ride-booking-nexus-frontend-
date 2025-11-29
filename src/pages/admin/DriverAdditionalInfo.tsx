@@ -40,7 +40,7 @@ export default function DriverAdditionalInfo() {
 
   const fetchDriverAdditionalData = async () => {
     try {
-      const response = await adminApi.getAllDriversAdditional();
+      const response:any = await adminApi.getAllDriversAdditional();
       setDriversAdditional(response?.data?.data || []);
     } catch {
       setDriversAdditional([]);
