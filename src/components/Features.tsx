@@ -42,97 +42,97 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="py-24 relative">
-       <div className="absolute inset-0 bg-gradient-hero opacity-10 " />
-      <div className="absolute inset-0 bg-gradient-glow animate-pulse-glow " />
+    <section
+      id="features"
+      className="
+        py-24 relative transition-colors duration-500
 
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float-slow" />
       
+        bg-muted/30
+
+      
+        dark:bg-gradient-to-r dark:from-[#08010F] dark:via-[#380996] dark:to-[#240404]"
+    >
+      {/* Background Glows */}
+       {/* <div className="absolute inset-0 bg-gradient-hero   opacity-10 dark:opacity-20" /> */}
+     <div className="absolute inset-0 bg-gradient-glow  dark:bg-black  animate-pulse-glow dark:opacity-30" />
+      <div className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl animate-float bg-primary/20 dark:bg-purple-600/30" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full blur-3xl animate-float-slow bg-accent/20 dark:bg-red-600/30" />
+
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16 animate-slide-up">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-hero bg-clip-text text-transparent">
-              RideBook
-            </span>
-            {" "}Features
+            <span className="bg-gradient-hero bg-clip-text text-transparent">RideBook</span> Features
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground dark:text-gray-300 max-w-2xl mx-auto">
             A Real-Time Ride Booking Platform with Role-Based Access
           </p>
         </div>
 
         <div className="space-y-16">
           {/* Rider Features */}
-          <div className="animate-fade-in">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-gradient-hero p-3 rounded-xl shadow-glow">
-                <User className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-bold">Rider Features</h3>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {riderFeatures.map((feature, index) => (
-                <Card
-                  key={index}
-                  className="p-6 hover:shadow-glow transition-all duration-300 hover:-translate-y-1 border-border bg-card/50 backdrop-blur-sm group"
-                >
-                  <feature.icon className="w-10 h-10 text-primary mb-4 group-hover:scale-110 transition-transform" />
-                  <h4 className="text-lg font-semibold mb-2">{feature.title}</h4>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </Card>
-              ))}
-            </div>
-          </div>
+          <FeatureGroup
+            icon={<User className="w-6 h-6 text-primary-foreground" />}
+            title="Rider Features"
+            features={riderFeatures}
+            cardColor="bg-card/50 dark:bg-[#08010f]/50"
+          />
 
           {/* Driver Features */}
-          <div className="animate-fade-in">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-gradient-cta p-3 rounded-xl shadow-glow">
-                <Car className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-bold">Driver Features</h3>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {driverFeatures.map((feature, index) => (
-                <Card
-                  key={index}
-                  className="p-6 hover:shadow-glow transition-all duration-300 hover:-translate-y-1 border-border bg-card/50 backdrop-blur-sm group"
-                >
-                  <feature.icon className="w-10 h-10 text-accent mb-4 group-hover:scale-110 transition-transform" />
-                  <h4 className="text-lg font-semibold mb-2">{feature.title}</h4>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </Card>
-              ))}
-            </div>
-          </div>
+          <FeatureGroup
+            icon={<Car className="w-6 h-6 text-primary-foreground" />}
+            title="Driver Features"
+            features={driverFeatures}
+            cardColor="bg-card/50 dark:bg-[#08010f]/50"
+          />
 
           {/* Admin Features */}
-          <div className="animate-fade-in">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-gradient-card p-3 rounded-xl shadow-glow">
-                <Shield className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-bold">Admin Features</h3>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {adminFeatures.map((feature, index) => (
-                <Card
-                  key={index}
-                  className="p-6 hover:shadow-glow transition-all duration-300 hover:-translate-y-1 border-border bg-card/50 backdrop-blur-sm group"
-                >
-                  <feature.icon className="w-10 h-10 text-secondary mb-4 group-hover:scale-110 transition-transform" />
-                  <h4 className="text-lg font-semibold mb-2">{feature.title}</h4>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </Card>
-              ))}
-            </div>
-          </div>
+          <FeatureGroup
+            icon={<Shield className="w-6 h-6 text-primary-foreground" />}
+            title="Admin Features"
+            features={adminFeatures}
+            cardColor="bg-card/50 dark:bg-[#08010f]/50"
+          />
         </div>
       </div>
     </section>
   );
 };
+
+/* Subcomponent for Feature Group */
+const FeatureGroup = ({
+  icon,
+  title,
+  features,
+  cardColor
+}: {
+  icon: React.ReactNode;
+  title: string;
+  features: { icon: any; title: string; description: string }[];
+  cardColor: string;
+}) => (
+  <div className="animate-fade-in">
+    <div className="flex items-center gap-3 mb-6">
+      <div className="bg-gradient-hero p-3 rounded-xl shadow-glow">{icon}</div>
+      <h3 className="text-2xl md:text-3xl font-bold dark:text-white">{title}</h3>
+    </div>
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {features.map((feature, idx) => (
+        <Card
+          key={idx}
+          className={`
+            p-6 border-border group relative overflow-hidden
+            hover:shadow-glow hover:-translate-y-1 transition-all duration-300 ${cardColor}
+          `}
+        >
+          <feature.icon className="w-10 h-10 mb-4 group-hover:scale-110 transition-transform text-primary dark:text-white" />
+          <h4 className="text-lg font-semibold mb-2 dark:text-white">{feature.title}</h4>
+          <p className="text-sm text-muted-foreground dark:text-gray-300">{feature.description}</p>
+        </Card>
+      ))}
+    </div>
+  </div>
+);
 
 export default Features;

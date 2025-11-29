@@ -17,8 +17,7 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic validation
+
     if (!formData.name || !formData.email || !formData.message) {
       toast({
         title: "Missing Information",
@@ -28,13 +27,11 @@ const Contact = () => {
       return;
     }
 
-    // Success message
     toast({
       title: "Message Sent! ✨",
       description: "We'll get back to you as soon as possible.",
     });
 
-    // Reset form
     setFormData({ name: "", email: "", phone: "", message: "" });
   };
 
@@ -48,13 +45,21 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-24 relative min-h-screen ">
-      <div className="absolute inset-0 bg-gradient-hero opacity-10 " />
-      <div className="absolute inset-0 bg-gradient-glow animate-pulse-glow " />
+    <section
+      id="contact"
+      className="
+        py-24 relative min-h-screen
+        bg-muted/30
+        dark:bg-gradient-to-r dark:from-[#08010F] dark:via-[#380996] dark:to-[#240404]
+      "
+    >
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-hero opacity-10 dark:opacity-20" />
+      {/* <div className="absolute inset-0 bg-gradient-glow animate-pulse-glow dark:opacity-30" /> */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float dark:bg-purple-600/30" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float-slow dark:bg-red-600/30" />
 
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float-slow" />
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-16 animate-slide-up">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -63,7 +68,7 @@ const Contact = () => {
               Touch
             </span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground dark:text-gray-300 max-w-2xl mx-auto">
             Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
           </p>
         </div>
@@ -72,54 +77,56 @@ const Contact = () => {
           {/* Contact Info */}
           <div className="space-y-8 animate-fade-in">
             <div>
-              <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
-              <p className="text-muted-foreground mb-8">
+              <h3 className="text-2xl font-bold mb-6 dark:text-white">
+                Contact Information
+              </h3>
+              <p className="text-muted-foreground dark:text-gray-300 mb-8">
                 Reach out to us through any of these channels. We're here to help you with your ride booking needs.
               </p>
             </div>
 
-            <Card className="p-6 bg-card/50 backdrop-blur-sm border-border hover:shadow-glow transition-all">
+            <Card className="p-6 bg-card/50  shadow-lg backdrop-blur-sm border-border hover:shadow-glow transition-all dark:bg-[#08010f]/50">
               <div className="flex items-start gap-4">
-                <div className="bg-gradient-hero p-3 rounded-lg shadow-glow">
+                <div className="bg-gradient-hero  p-3 rounded-lg shadow-glow">
                   <Mail className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1">Email</h4>
-                  <p className="text-muted-foreground">support@ridebook.com</p>
+                  <h4 className="font-semibold mb-1 dark:text-white">Email</h4>
+                  <p className="text-muted-foreground dark:text-gray-300">rafiq@ridebook.com</p>
                 </div>
               </div>
             </Card>
 
-            <Card className="p-6 bg-card/50 backdrop-blur-sm border-border hover:shadow-glow transition-all">
+            <Card className="p-6 bg-card/50  shadow-lg backdrop-blur-sm border-border hover:shadow-glow transition-all dark:bg-[#08010f]/50">
               <div className="flex items-start gap-4">
                 <div className="bg-gradient-cta p-3 rounded-lg shadow-glow">
                   <Phone className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1">Phone</h4>
-                  <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                  <h4 className="font-semibold mb-1 dark:text-white">Phone</h4>
+                  <p className="text-muted-foreground dark:text-gray-300">+88012345678</p>
                 </div>
               </div>
             </Card>
 
-            <Card className="p-6 bg-card/50 backdrop-blur-sm border-border hover:shadow-glow transition-all">
+            <Card className="p-6 bg-card/50  shadow-lg backdrop-blur-sm border-border hover:shadow-glow transition-all dark:bg-[#08010f]/50">
               <div className="flex items-start gap-4">
                 <div className="bg-gradient-card p-3 rounded-lg shadow-glow">
                   <MapPin className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-1">Location</h4>
-                  <p className="text-muted-foreground">Remote, Worldwide</p>
+                  <h4 className="font-semibold mb-1 dark:text-white">Location</h4>
+                  <p className="text-muted-foreground dark:text-gray-300">Remote, Worldwide</p>
                 </div>
               </div>
             </Card>
           </div>
 
           {/* Contact Form */}
-          <Card className="p-8 bg-card/50 backdrop-blur-sm border-border shadow-elegant animate-scale-in">
+          <Card className="p-8 bg-card/50 backdrop-blur-sm border-border shadow-lg animate-scale-in dark:bg-[#08010f]/50">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                <label htmlFor="name" className="block text-sm font-medium mb-2 dark:text-white">
                   Name *
                 </label>
                 <Input
@@ -127,14 +134,14 @@ const Contact = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="John Doe"
+                  placeholder="Rafiq Islam"
                   required
-                  className="bg-background/50"
+                  className="bg-card dark:bg-gray-800/50"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                <label htmlFor="email" className="block text-sm font-medium mb-2 dark:text-white">
                   Email *
                 </label>
                 <Input
@@ -143,14 +150,14 @@ const Contact = () => {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="john@example.com"
+                  placeholder="bibek@gmail.com"
                   required
-                  className="bg-background/50"
+                  className="bg-card dark:bg-gray-800/50"
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                <label htmlFor="phone" className="block text-sm font-medium mb-2 dark:text-white">
                   Phone Number
                 </label>
                 <Input
@@ -159,13 +166,13 @@ const Contact = () => {
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+1 (555) 123-4567"
-                  className="bg-background/50"
+                  placeholder="+88012345678"
+                  className="bg-card dark:bg-gray-800/50"
                 />
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-2">
+                <label htmlFor="message" className="block text-sm font-medium mb-2 dark:text-white">
                   Message *
                 </label>
                 <Textarea
@@ -176,7 +183,7 @@ const Contact = () => {
                   placeholder="Tell us how we can help you..."
                   required
                   rows={5}
-                  className="bg-background/50 resize-none"
+                  className="bg-card resize-none dark:bg-gray-800/50"
                 />
               </div>
 
