@@ -86,7 +86,7 @@ export default function RiderRides() {
         </div>
 
         {rides.length === 0 ? (
-          <Card className="shadow-lg">
+          <Card className="shadow-lg ">
             <CardContent className="flex flex-col items-center justify-center py-16">
               <MapPin className="h-16 w-16 text-muted-foreground mb-4" />
               <p className="text-lg font-medium mb-2">No rides yet</p>
@@ -99,7 +99,7 @@ export default function RiderRides() {
         ) : (
           <div className="grid gap-4">
             {rides.map((ride) => (
-              <Card key={ride._id} className="shadow-lg hover:shadow-xl transition-shadow">
+              <Card key={ride._id} className="shadow-lg bg-card/50 dark:bg-[#08010f]/50 hover:shadow-xl transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">

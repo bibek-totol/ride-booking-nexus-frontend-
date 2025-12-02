@@ -40,7 +40,7 @@ export default function DriverAvailability() {
 
         <div className="grid gap-6 md:grid-cols-2">
           {/* Availability Toggle */}
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ToggleLeft className="h-5 w-5 text-primary" />
@@ -92,7 +92,7 @@ export default function DriverAvailability() {
 
           {/* Information Card */}
           <div className="space-y-4">
-            <Card className="shadow-lg border-info/20 bg-gradient-to-br from-info/5 to-info/10">
+            <Card className="shadow-lg border-info/20  dark:bg-[#08010f]/50 bg-gradient-to-br from-info/5 to-info/10">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Info className="h-5 w-5 text-info" />
@@ -122,7 +122,7 @@ export default function DriverAvailability() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg">
+            <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
               <CardHeader>
                 <CardTitle>Tips for Drivers</CardTitle>
               </CardHeader>

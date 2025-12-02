@@ -207,7 +207,7 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
         <div className="grid gap-6 md:grid-cols-2">
          
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
@@ -348,7 +348,7 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
           
           <div className="space-y-4">
-            <Card className="shadow-lg border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+            <Card className="shadow-lg border-primary/20  dark:bg-[#08010f]/50 bg-gradient-to-br from-primary/5 to-primary/10">
               <CardHeader>
                 <CardTitle>How it Works</CardTitle>
               </CardHeader>
@@ -391,7 +391,7 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg">
+            <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
               <CardHeader>
                 <CardTitle>Need Help?</CardTitle>
               </CardHeader>

@@ -30,7 +30,7 @@ export default function DriverDashboard() {
 
     const fetchRides = async () => {
       try {
-        const response = await driverApi.getAllRides();
+        const response:any = await driverApi.getAllRides();
         if (response.error) {
           toast.error(response.error);
           setIsLoading(false);
@@ -43,7 +43,7 @@ export default function DriverDashboard() {
           ridesArray.map(async (ride: any) => {
             if (!ride.rider) return ride;
 
-            const userResponse = await userApi.getUserById(ride.rider);
+            const userResponse:any = await userApi.getUserById(ride.rider);
             return {
               ...ride,
               rider: userResponse.data?.user || null,
@@ -148,7 +148,7 @@ const handleAcceptRide = async (rideId: string) => {
         </div>
 
         {rides.length === 0 ? (
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
             <CardContent className="flex flex-col items-center justify-center py-16">
               <Navigation className="h-16 w-16 text-muted-foreground mb-4" />
               <p className="text-lg font-medium mb-2">No active ride requests</p>
@@ -160,7 +160,7 @@ const handleAcceptRide = async (rideId: string) => {
         ) : (
           <div className="grid gap-4">
             {rides.map(ride => (
-              <Card key={ride._id} className="shadow-lg hover:shadow-xl transition-shadow">
+              <Card key={ride._id} className="shadow-lg bg-card/50 dark:bg-[#08010f]/50 hover:shadow-xl transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">

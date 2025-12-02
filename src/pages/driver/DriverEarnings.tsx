@@ -25,8 +25,8 @@ useEffect(() => {
 const loadStats = async () => {
   setIsLoading(true); 
   try {
-    const res = await driverApi.getDriverEarnings();
-    const data:any = res.data;
+    const res:any = await driverApi.getDriverEarnings();
+    const data = res.data;
     setStats(data);
     setEarnings(res.data.recentEarnings || []);
   } catch (error) {
@@ -61,7 +61,7 @@ const loadStats = async () => {
 
         
         <div className="grid gap-4 md:grid-cols-3">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -72,7 +72,7 @@ const loadStats = async () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Rides</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -83,7 +83,7 @@ const loadStats = async () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Average Fare</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -98,7 +98,7 @@ const loadStats = async () => {
         </div>
 
       
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
           <CardHeader>
             <CardTitle>Recent Earnings</CardTitle>
             <CardDescription>Your earnings from completed rides</CardDescription>
