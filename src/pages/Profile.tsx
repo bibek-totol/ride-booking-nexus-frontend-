@@ -116,15 +116,20 @@ export default function Profile() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      
+      <div className="space-y-6 relative">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Profile</h2>
           <p className="text-muted-foreground">Manage your account information</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
         
-          <Card className="shadow-lg">
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float dark:bg-purple-600/30 pointer-events-none" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float-slow dark:bg-red-600/30 pointer-events-none" />
+        
+          <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5 text-primary" />
@@ -257,7 +262,7 @@ export default function Profile() {
 
           
           <div className="space-y-4">
-            <Card className="shadow-lg">
+            <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
               <CardHeader>
                 <CardTitle>Account Activity</CardTitle>
                 <CardDescription>Your usage statistics</CardDescription>
@@ -296,7 +301,7 @@ export default function Profile() {
             </Card>
 
             
-            <Card className="shadow-lg border-warning/20 bg-gradient-to-br from-warning/5 to-warning/10">
+            <Card className="shadow-lg border-warning/20 bg-card/50 dark:bg-[#08010f]/50">
               <CardHeader>
                 <CardTitle>Security</CardTitle>
               </CardHeader>

@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { adminApi } from '@/lib/api';
-import { toast } from 'sonner';
-import { Users, Car, MapPin, TrendingUp, Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { adminApi } from "@/lib/api";
+import { Loader2, Users, Car, MapPin, TrendingUp } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -12,6 +11,7 @@ export default function AdminDashboard() {
     totalRides: 0,
     activeRides: 0,
   });
+
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -20,7 +20,6 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      // Fetch data from multiple endpoints
       const [usersRes, driversRes, ridesRes] = await Promise.all([
         adminApi.listUsers(),
         adminApi.listDrivers(),
@@ -35,12 +34,13 @@ export default function AdminDashboard() {
         totalUsers: users.length,
         totalDrivers: drivers.length,
         totalRides: rides.length,
-        activeRides: rides.filter((r: any) => 
-          ['pending', 'accepted', 'picked_up'].includes(r.status)
+        activeRides: rides.filter((r: any) =>
+          ["pending", "accepted", "picked_up"].includes(r.status)
         ).length,
       });
-    } catch (error) {
-      // Set mock data for demonstration
+
+    } catch (e) {
+      // Mock data fallback
       setStats({
         totalUsers: 156,
         totalDrivers: 42,
@@ -54,32 +54,28 @@ export default function AdminDashboard() {
 
   const statCards = [
     {
-      title: 'Total Users',
+      title: "Total Users",
       value: stats.totalUsers,
       icon: Users,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10',
+      bg: "bg-gradient-hero",
     },
     {
-      title: 'Total Drivers',
+      title: "Total Drivers",
       value: stats.totalDrivers,
       icon: Car,
-      color: 'text-accent',
-      bgColor: 'bg-accent/10',
+      bg: "bg-gradient-cta",
     },
     {
-      title: 'Total Rides',
+      title: "Total Rides",
       value: stats.totalRides,
       icon: MapPin,
-      color: 'text-info',
-      bgColor: 'bg-info/10',
+      bg: "bg-gradient-card",
     },
     {
-      title: 'Active Rides',
+      title: "Active Rides",
       value: stats.activeRides,
       icon: TrendingUp,
-      color: 'text-success',
-      bgColor: 'bg-success/10',
+      bg: "bg-purple-600/30 dark:bg-green-600/30",
     },
   ];
 
@@ -95,109 +91,158 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Admin Dashboard</h2>
-          <p className="text-muted-foreground">Overview of your ride-booking platform</p>
-        </div>
+      {/* Background Layer */}
+      <div
+        className="
+        relative min-h-screen p-6 rounded-xl
+        bg-muted/30
+        dark:bg-gradient-to-r dark:from-[#08010F] dark:via-[#380996] dark:to-[#240404]
+      "
+      >
+        {/* Light/Dark Background Glow Effects */}
+        
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float dark:bg-purple-600/30 pointer-events-none" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float-slow dark:bg-red-600/30 pointer-events-none" />
 
-        {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((stat) => (
-            <Card key={stat.title} className="shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <div className={`h-10 w-10 flex items-center justify-center rounded-full ${stat.bgColor}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stat.title === 'Active Rides' ? 'Currently ongoing' : 'Registered'}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <div className="relative z-10 space-y-6">
 
-        {/* Quick Actions */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-              <a
-                href="/admin/users"
-                className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors group"
+          {/* Title */}
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight dark:text-white">
+              Admin Dashboard
+            </h2>
+            <p className="text-muted-foreground dark:text-gray-300">
+              Overview of your ride-booking platform
+            </p>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {statCards.map((stat) => (
+              <Card
+                key={stat.title}
+                className="
+                  shadow-lg hover:shadow-glow transition-all
+                  bg-card/50 backdrop-blur-sm border-border
+                  dark:bg-[#08010f]/50
+                "
               >
-                <Users className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
-                <div>
-                  <p className="font-medium">Manage Users</p>
-                  <p className="text-xs text-muted-foreground">View and manage all users</p>
-                </div>
-              </a>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium dark:text-white">
+                    {stat.title}
+                  </CardTitle>
+                  <div
+                    className={`h-10 w-10 flex items-center justify-center rounded-lg shadow-glow ${stat.bg}`}
+                  >
+                    <stat.icon className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold dark:text-white">
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-muted-foreground dark:text-gray-300 mt-1">
+                    {stat.title === "Active Rides"
+                      ? "Currently ongoing"
+                      : "Registered"}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-              <a
-                href="/admin/drivers"
-                className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors group"
-              >
-                <Car className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
-                <div>
-                  <p className="font-medium">Manage Drivers</p>
-                  <p className="text-xs text-muted-foreground">Approve or suspend drivers</p>
-                </div>
-              </a>
-
-              <a
-                href="/admin/rides"
-                className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors group"
-              >
-                <MapPin className="h-5 w-5 text-info group-hover:scale-110 transition-transform" />
-                <div>
-                  <p className="font-medium">View Rides</p>
-                  <p className="text-xs text-muted-foreground">Monitor all ride activities</p>
-                </div>
-              </a>
-
-              <a
-                href="/admin/reports"
-                className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors group"
-              >
-                <TrendingUp className="h-5 w-5 text-success group-hover:scale-110 transition-transform" />
-                <div>
-                  <p className="font-medium">Reports</p>
-                  <p className="text-xs text-muted-foreground">Generate system reports</p>
-                </div>
-              </a>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Platform Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-sm font-medium">Active Drivers Online</span>
-                <span className="px-2 py-1 text-xs font-medium rounded-full bg-info/20 text-info">
-                  {Math.floor(stats.totalDrivers * 0.6)}
-                </span>
+          {/* Quick Actions */}
+          <Card
+            className="
+              shadow-lg bg-card/50 dark:bg-[#08010f]/50 backdrop-blur-sm border-border
+            "
+          >
+            <CardHeader>
+              <CardTitle className="dark:text-white">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    href: "/admin/users",
+                    icon: Users,
+                    label: "Manage Users",
+                    desc: "View and manage all users",
+                  },
+                  {
+                    href: "/admin/drivers",
+                    icon: Car,
+                    label: "Manage Drivers",
+                    desc: "Approve or suspend drivers",
+                  },
+                  {
+                    href: "/admin/rides",
+                    icon: MapPin,
+                    label: "View Rides",
+                    desc: "Monitor all ride activities",
+                  },
+                  {
+                    href: "/admin/reports",
+                    icon: TrendingUp,
+                    label: "Reports",
+                    desc: "Generate system reports",
+                  },
+                ].map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="
+                      flex items-center gap-3 p-4 border rounded-lg
+                      hover:bg-muted/50 transition-colors group
+                      dark:border-gray-700
+                    "
+                  >
+                    <item.icon className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                    <div>
+                      <p className="font-medium dark:text-white">{item.label}</p>
+                      <p className="text-xs text-muted-foreground dark:text-gray-300">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </a>
+                ))}
               </div>
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-sm font-medium">Pending Driver Approvals</span>
-                <span className="px-2 py-1 text-xs font-medium rounded-full bg-warning/20 text-warning">
-                  {Math.floor(stats.totalDrivers * 0.1)}
-                </span>
+            </CardContent>
+          </Card>
+
+          {/* Status Section */}
+          <Card
+            className="
+              shadow-lg bg-card/50 dark:bg-[#08010f]/50 backdrop-blur-sm border-border
+            "
+          >
+            <CardHeader>
+              <CardTitle className="dark:text-white">Platform Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-700">
+                  <span className="text-sm font-medium dark:text-white">
+                    Active Drivers Online
+                  </span>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-info/20 text-info">
+                    {Math.floor(stats.totalDrivers * 0.6)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 border rounded-lg dark:border-gray-700">
+                  <span className="text-sm font-medium dark:text-white">
+                    Pending Driver Approvals
+                  </span>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-warning/20 text-warning">
+                    {Math.floor(stats.totalDrivers * 0.1)}
+                  </span>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+        </div>
       </div>
     </DashboardLayout>
   );

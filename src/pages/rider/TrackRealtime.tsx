@@ -70,7 +70,7 @@ export default function TrackRealtime() {
         </div>
 
         
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
           <CardHeader>
             <CardTitle>Select Active Ride</CardTitle>
           </CardHeader>
@@ -96,7 +96,7 @@ export default function TrackRealtime() {
         </Card>
 
         
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
           <CardHeader>
             <CardTitle>Ride Status</CardTitle>
           </CardHeader>
@@ -108,7 +108,7 @@ export default function TrackRealtime() {
         </Card>
 
         
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
           <CardHeader>
             <CardTitle>Ride Locations</CardTitle>
           </CardHeader>
