@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React, { useEffect, useMemo, useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { userApi } from "@/lib/api";
+import { getSocket } from "@/lib/socketClient";
 
-// Fix Leaflet icon issue
+// Fix leaflet icon issue (if using the default icons)
 (delete (L.Icon.Default as any).prototype._getIconUrl);
 (L.Icon.Default as any).mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-icon-2x.png",
@@ -21,39 +19,75 @@ import { userApi } from "@/lib/api";
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/images/marker-shadow.png",
 });
 
-// Driver icon
 const carIcon = L.icon({
-  iconUrl:
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSA95APG4XyNdqb5XzmYTHbsgLJf-uETvVP2X9UkpSqlGPFPcje8hmBRBI&s",
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/194/194933.png", // change as you like
   iconSize: [40, 40],
   iconAnchor: [20, 20],
   popupAnchor: [0, -20],
 });
 
-export default function TrackRealtime() {
-  const [activeRides, setActiveRides] = useState<any[]>([]);
-  const [selectedRide, setSelectedRide] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+interface Ride {
+  _id: string;
+  pickup: { lat: number; lng: number; address?: string };
+  destination: { lat: number; lng: number; address?: string };
+  driver?: { name?: string; email?: string };
+  driverLocation?: { lat: number; lng: number };
+  status?: string;
+}
 
-  // Fetch active rides on mount
+export default function TrackRealtime() {
+  const socket = useMemo(() => getSocket(), []);
+  const [activeRides, setActiveRides] = useState<Ride[]>([]);
+  const [selectedRide, setSelectedRide] = useState<Ride | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
+
+  
   useEffect(() => {
     const fetchRides = async () => {
       setLoading(true);
-      const response: any = await userApi.getAcceptedRides();
-      console.log("Accepted rides response:", response);
-      const rides = response?.data?.rides;
-      if (Array.isArray(rides) && rides.length > 0) {
+      try {
+        const response: any = await userApi.getAcceptedRides();
+        const rides = response?.data?.rides || [];
         setActiveRides(rides);
-        setSelectedRide(rides[0]); 
+        if (rides.length > 0) {
+          setSelectedRide(rides[0]);
+          setDriverPos(rides[0]?.driverLocation || null);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchRides();
   }, []);
 
+  
+  useEffect(() => {
+    if (!selectedRide) return;
+
+    const rideId = selectedRide._id;
+    socket.emit("join_ride_room", rideId);
+
+    const onLocationUpdate = (payload: { lat: number; lng: number; ts?: number }) => {
+      setDriverPos({ lat: payload.lat, lng: payload.lng });
+
+      
+      setSelectedRide(prev => prev ? { ...prev, driverLocation: { lat: payload.lat, lng: payload.lng }} : prev);
+    };
+
+    socket.on("driver_location_update", onLocationUpdate);
+
+    return () => {
+      socket.off("driver_location_update", onLocationUpdate);
+    };
+  }, [selectedRide, socket]);
+
   const handleRideSelect = (rideId: string) => {
-    const ride = activeRides.find((r) => r._id === rideId);
-    if (ride) setSelectedRide(ride);
+    const ride = activeRides.find(r => r._id === rideId) || null;
+    setSelectedRide(ride);
+    setDriverPos(ride?.driverLocation || null);
   };
 
   if (loading) return <DashboardLayout>Loading rides...</DashboardLayout>;
@@ -63,61 +97,38 @@ export default function TrackRealtime() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6  relative z-30">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Track Your Ride</h2>
           <p className="text-muted-foreground">View pickup, destination, and driver live</p>
         </div>
 
-        
         <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
-          <CardHeader>
-            <CardTitle>Select Active Ride</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Select Active Ride</CardTitle></CardHeader>
           <CardContent>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  {"Select a Ride!!"}
-                </Button>
+                <Button variant="outline" className="w-full">Select a Ride</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
-                {activeRides.map((r) => (
-                  <React.Fragment key={r._id}>
-                    <DropdownMenuItem onClick={() => handleRideSelect(r._id)}>
-                      {r._id} — {"Rider Name: " + r.rider.name}
-                    </DropdownMenuItem>
-                    <hr />
-                  </React.Fragment>
+                {activeRides.map(r => (
+                  <DropdownMenuItem key={r._id} onClick={() => handleRideSelect(r._id)}>
+                    {r._id} — {r.pickup.address || "Ride"}
+                  </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </CardContent>
         </Card>
 
-        
         <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
-          <CardHeader>
-            <CardTitle>Ride Status</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Ride Locations</CardTitle></CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-2">
-              Status: <span className="font-semibold">{ride.status}</span>
-            </p>
-          </CardContent>
-        </Card>
-
-        
-        <Card className="shadow-lg bg-card/50 dark:bg-[#08010f]/50">
-          <CardHeader>
-            <CardTitle>Ride Locations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[500px] w-full">
+            <div className="h-[500px] w-full ">
               <MapContainer
                 center={[ride.pickup.lat, ride.pickup.lng]}
-                zoom={14}
-                scrollWheelZoom={true}
+                zoom={13}
+                scrollWheelZoom
                 style={{ height: "100%", width: "100%" }}
               >
                 <TileLayer
@@ -125,31 +136,26 @@ export default function TrackRealtime() {
                   attribution="&copy; OpenStreetMap contributors"
                 />
 
-                
                 <Marker position={[ride.pickup.lat, ride.pickup.lng]}>
                   <Popup>{ride.pickup.address}</Popup>
                 </Marker>
 
-                
                 <Marker position={[ride.destination.lat, ride.destination.lng]}>
                   <Popup>{ride.destination.address}</Popup>
                 </Marker>
 
-                
-                <Marker position={[ride.driverLocation.lat, ride.driverLocation.lng]} icon={carIcon}>
-                  <Popup>
-                    {ride.driver.name} <br /> {ride.driver.email}
-                  </Popup>
-                </Marker>
+                {driverPos && (
+                  <Marker position={[driverPos.lat, driverPos.lng]} icon={carIcon}>
+                    <Popup>
+                      {ride.driver?.name} <br /> {ride.driver?.email}
+                    </Popup>
+                  </Marker>
+                )}
 
-                
-                <Polyline
-                  positions={[
-                    [ride.pickup.lat, ride.pickup.lng],
-                    [ride.destination.lat, ride.destination.lng],
-                  ]}
-                  color="blue"
-                />
+                <Polyline positions={[
+                  [ride.pickup.lat, ride.pickup.lng],
+                  [ride.destination.lat, ride.destination.lng]
+                ]} />
               </MapContainer>
             </div>
           </CardContent>

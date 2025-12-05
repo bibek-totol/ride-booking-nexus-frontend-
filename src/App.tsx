@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 
 import RiderDashboard from "./pages/rider/RiderDashboard";
 import RiderRides from "./pages/rider/RiderRides";
+import StripePaymentCheckout from "./pages/rider/StripePaymentCheckout";
 
 import DriverDashboard from "./pages/driver/DriverDashboard";
 import DriverEarnings from "./pages/driver/DriverEarnings";
@@ -32,10 +33,12 @@ import DriverAdditionalInfo from "./pages/admin/DriverAdditionalInfo";
 import FeaturesPage from "./pages/Features";
 import FAQPage from "./pages/FAQ";
 import ContactUsPage from "./pages/ContactUs";
+import PaymentSuccess from "./pages/rider/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -68,8 +71,27 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/stripe-payment-checkout"
+              element={
+                <ProtectedRoute allowedRoles={['rider']}>
+                  <StripePaymentCheckout />
+                </ProtectedRoute>
+              }
+            />
 
            
+            <Route
+              path="/payment-success"
+              element={
+                <ProtectedRoute allowedRoles={['rider']}>
+                  <PaymentSuccess/>
+                </ProtectedRoute>
+              }
+            />
+
+           
+
 
 
             <Route
@@ -227,6 +249,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  
 );
 
 export default App;

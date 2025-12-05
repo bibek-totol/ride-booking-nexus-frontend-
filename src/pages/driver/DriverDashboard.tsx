@@ -1,133 +1,224 @@
-import { useState, useEffect, useRef } from 'react';
-import { DashboardLayout } from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { driverApi, userApi } from '@/lib/api';
-import { toast } from 'sonner';
-import { MapPin, Check, X, Loader2, Clock, Navigation,DollarSign } from 'lucide-react';
- import { getAddressFromCoords } from "@/lib/geocode";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { driverApi, userApi } from "@/lib/api";
+import { toast } from "sonner";
+import { MapPin, Check, X, Loader2, Clock, Navigation, DollarSign } from "lucide-react";
+import { getAddressFromCoords } from "@/lib/geocode";
+import { getSocket } from "@/lib/socketClient";
 
 interface Ride {
   _id: string;
-  pickup: { address: string };
-  destination: { address: string };
-   price?: number;
+  pickup: { address: string; lat?: number; lng?: number };
+  destination: { address: string; lat?: number; lng?: number };
+  price?: number;
   status: string;
-  rider?: { name: string };
+  rider?: { name: string } | null;
+  driver?: { name?: string };
   createdAt: string;
+  driverLocation?: { lat: number; lng: number; address?: string } | null;
 }
 
 export default function DriverDashboard() {
   const [rides, setRides] = useState<Ride[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const didFetch = useRef(false);
+  const locationIntervalRef = useRef<number | null>(null);
+  const socketRef = useRef(getSocket());
 
+  // Fetch rides (single-run)
   useEffect(() => {
-    if (didFetch.current) return;
-    didFetch.current = true;
-
+    let mounted = true;
     const fetchRides = async () => {
       try {
-        const response:any = await driverApi.getAllRides();
-        if (response.error) {
+        const response: any = await driverApi.getAllRides();
+        if (response?.error) {
           toast.error(response.error);
-          setIsLoading(false);
           return;
         }
+        const ridesArray: any[] = response.data?.rides || [];
 
-        const ridesArray = response.data.rides;
-
+        // Optionally fetch rider detail for each ride
         const ridesWithUser = await Promise.all(
           ridesArray.map(async (ride: any) => {
             if (!ride.rider) return ride;
-
-            const userResponse:any = await userApi.getUserById(ride.rider);
-            return {
-              ...ride,
-              rider: userResponse.data?.user || null,
-            };
+            try {
+              const userResponse: any = await userApi.getUserById(ride.rider);
+              return { ...ride, rider: userResponse?.data?.user || null };
+            } catch {
+              return ride;
+            }
           })
         );
 
+        if (!mounted) return;
         setRides(ridesWithUser);
       } catch (err) {
         toast.error("Failed to fetch rides");
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     fetchRides();
+    return () => { mounted = false; };
   }, []);
 
- 
-const handleAcceptRide = async (rideId: string) => {
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-
-    
-    const address = await getAddressFromCoords(lat.toString(), lng.toString());
-
-    const response = await driverApi.acceptRide(rideId, {
-      driverLocation: { lat, lng, address },
-    });
-
-    if (response.error) {
-      toast.error(response.error);
-      return;
+  // Helper: start periodic location sending
+  const startLiveLocation = (rideId: string) => {
+    // Clear previous interval (if any)
+    if (locationIntervalRef.current) {
+      window.clearInterval(locationIntervalRef.current);
+      locationIntervalRef.current = null;
     }
 
-    toast.success("Ride accepted!");
-    setRides(rides.map(r =>
-      r._id === rideId ? { ...r, status: "accepted" } : r
-    ));
-  });
-};
+    // Ensure socket is connected & join ride room
+    const socket = socketRef.current;
+    socket.emit("join_ride_room", rideId);
 
+    // Immediately send one location, then interval
+    const sendPosition = () => {
+      if (!navigator.geolocation) {
+        toast.error("Geolocation not supported");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
 
+          // Optionally get address (async)
+          (async () => {
+            try {
+              const address = await getAddressFromCoords(lat.toString(), lng.toString());
+              // update backend with initial driverLocation through API (optional)
+              try {
+                await driverApi.updateDriverLocation?.(rideId, { lat, lng, address });
+              } catch (_e) { /* ignore */ }
+            } catch (_e) {
+              /* ignore geocode failure */
+            }
+          })();
 
+          // emit through socket
+          socket.emit("driver_location", { rideId, lat, lng });
+          console.log("driver_location emitted:", { rideId, lat, lng });
+        },
+        (err) => {
+          console.error("geolocation get error:", err);
+        },
+        { enableHighAccuracy: true, maximumAge: 2000 }
+      );
+    };
 
+    // send immediate
+    sendPosition();
+
+    // start interval every 4-5s (choose your preferred — using 4500ms)
+    const id = window.setInterval(sendPosition, 4500);
+    locationIntervalRef.current = id;
+  };
+
+  const stopLiveLocation = () => {
+    if (locationIntervalRef.current) {
+      window.clearInterval(locationIntervalRef.current);
+      locationIntervalRef.current = null;
+    }
+  };
+
+  // Accept ride: start live tracking
+  const handleAcceptRide = async (rideId: string) => {
+    try {
+      // use geolocation to get initial coords and address
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          let address = "";
+          try {
+            address = await getAddressFromCoords(lat.toString(), lng.toString());
+          } catch {
+            address = "";
+          }
+
+          // Call your API to accept ride (existing driverApi)
+          const response: any = await driverApi.acceptRide(rideId, {
+            driverLocation: { lat, lng, address },
+          });
+
+          if (response?.error) {
+            toast.error(response.error);
+            return;
+          }
+
+          toast.success("Ride accepted!");
+
+          // update local state
+          setRides((prev) => prev.map(r => r._id === rideId ? { ...r, status: "accepted", driverLocation: { lat, lng, address } } : r));
+
+          // START live location updates via socket
+          startLiveLocation(rideId);
+        },
+        (err) => {
+          toast.error("Unable to get current location. Please enable GPS.");
+          console.error(err);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } catch (err) {
+      toast.error("Failed to accept ride");
+    }
+  };
+
+  // Reject ride
   const handleRejectRide = async (rideId: string) => {
     try {
-      const response = await driverApi.rejectRide(rideId);
-      if (response.error) {
+      const response: any = await driverApi.rejectRide(rideId);
+      if (response?.error) {
         toast.error(response.error);
       } else {
-        toast.success('Ride rejected');
-        setRides(rides.filter(r => r._id !== rideId));
+        toast.success("Ride rejected");
+        setRides(prev => prev.filter(r => r._id !== rideId));
       }
     } catch {
-      toast.error('Failed to reject ride');
+      toast.error("Failed to reject ride");
     }
   };
 
+  // Update status (picked up, completed)
   const handleUpdateStatus = async (rideId: string, status: string) => {
     try {
-      const response = await driverApi.updateRideStatus(rideId, status);
-      if (response.error) {
+      const response: any = await driverApi.updateRideStatus(rideId, status);
+      if (response?.error) {
         toast.error(response.error);
       } else {
-        toast.success('Status updated');
-        setRides(rides.map(r => r._id === rideId ? { ...r, status } : r));
+        toast.success("Status updated");
+        setRides(prev => prev.map(r => r._id === rideId ? { ...r, status } : r));
+
+        // stop live location when ride is completed
+        if (status === "completed") {
+          stopLiveLocation();
+        }
       }
     } catch {
-      toast.error('Failed to update status');
+      toast.error("Failed to update status");
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: { [key: string]: string } = {
-      pending: 'bg-warning text-warning-foreground',
-      requested: 'bg-warning text-warning-foreground',
-      accepted: 'bg-info text-info-foreground',
-      picked_up: 'bg-primary text-primary-foreground',
-      completed: 'bg-success text-success-foreground',
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopLiveLocation();
+      try {
+        socketRef.current.disconnect();
+      } catch { /* ignore */ }
     };
-    return colors[status] || 'bg-muted text-muted-foreground';
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -166,23 +257,15 @@ const handleAcceptRide = async (rideId: string) => {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-lg">Ride Request</CardTitle>
-                        <Badge className={getStatusColor(ride.status)}>
-                          {ride.status.replace('_', ' ').toUpperCase()}
-                        </Badge>
+                        <Badge>{ride.status.toUpperCase()}</Badge>
                       </div>
-
-                      <CardDescription className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        {new Date(ride.createdAt).toLocaleString()}
-                      </CardDescription>
                     </div>
-
                     {ride.price && (
-                    <div className="mt-2 flex items-center gap-2 bg-primary/10 px-3 py-2 rounded-lg font-semibold text-primary w-fit">
-                      <DollarSign className="h-4 w-4" />
-                      {Math.round(ride.price)} BDT
-                    </div>
-                  )}
+                      <div className="mt-2 flex items-center gap-2 bg-primary/10 px-3 py-2 rounded-lg font-semibold text-primary w-fit">
+                        <DollarSign className="h-4 w-4" />
+                        {Math.round(ride.price)} BDT
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
 
@@ -216,7 +299,6 @@ const handleAcceptRide = async (rideId: string) => {
                     </div>
                   </div>
 
-                  
                   {(ride.status === "requested" || ride.status === "pending") && (
                     <div className="flex gap-2 pt-2">
                       <Button className="flex-1" onClick={() => handleAcceptRide(ride._id)}>

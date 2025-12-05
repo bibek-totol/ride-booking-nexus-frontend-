@@ -1,4 +1,5 @@
-import { useState,useRef,useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,11 +9,25 @@ import { MapPin, Navigation, Loader2 } from 'lucide-react';
 import { riderApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { getAddressFromCoords, getCoordsFromAddress } from '@/lib/geocode';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CreditCard, Banknote } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
 
 
 
 export default function RiderDashboard() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
   const [pickupAddress, setPickupAddress] = useState('');
   const [pickupLat, setPickupLat] = useState('');
   const [pickupLng, setPickupLng] = useState('');
@@ -20,6 +35,8 @@ export default function RiderDashboard() {
   const [destLat, setDestLat] = useState('');
   const [destLng, setDestLng] = useState('');
   const [priceFare, setPriceFare] = useState<number | null>(null);
+
+  const { user } = useAuth();
 
 
 useEffect(() => {
@@ -72,40 +89,80 @@ toast.success(`Distance: ${distance.toFixed(2)} km | Fare: ৳${finalFare}`);
 
   const handleRequestRide = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!priceFare) {
+      toast.error("Please enter valid pickup and destination to calculate fare.");
+      return;
+    }
+    setIsPaymentModalOpen(true);
+  };
 
-    try {
-      const response = await riderApi.requestRide({
-        pickup: {
-          lat: parseFloat(pickupLat),
-          lng: parseFloat(pickupLng),
-          address: pickupAddress,
-        },
-        destination: {
-          lat: parseFloat(destLat),
-          lng: parseFloat(destLng),
-          address: destAddress,
-        },
-        price: priceFare,
-        
-      });
+  const handleProceedPayment = async () => {
+    if (paymentMethod === 'cash') {
+      toast.success("Payment will be in Cash");
+      setIsPaymentModalOpen(false);
+      
+     
+      setIsLoading(true);
+      try {
+        const response:any = await riderApi.requestRide({
 
-      if (response.error) {
-        toast.error(response.error);
-      } else {
-        toast.success('Ride requested successfully! A driver will be assigned soon.');
-        
-        setPickupAddress('');
-        setPickupLat('');
-        setPickupLng('');
-        setDestAddress('');
-        setDestLat('');
-        setDestLng('');
+
+
+          pickup: {
+            lat: parseFloat(pickupLat),
+            lng: parseFloat(pickupLng),
+            address: pickupAddress,
+          },
+          destination: {
+            lat: parseFloat(destLat),
+            lng: parseFloat(destLng),
+            address: destAddress,
+          },
+          price: priceFare!,
+          payment: {
+            method: 'cash',
+            paymentIntentId: undefined,
+            amount: priceFare!,
+          },
+          riderName: user?.name,
+          riderEmail: user?.email,
+        });
+
+        if (response.error) {
+          toast.error(response.error);
+        } else {
+          toast.success('Ride requested successfully! A driver will be assigned soon.');
+          setPickupAddress('');
+          setPickupLat('');
+          setPickupLng('');
+          setDestAddress('');
+          setDestLat('');
+          setDestLng('');
+        }
+      } catch (error) {
+        toast.error('Failed to request ride. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      toast.error('Failed to request ride. Please try again.');
-    } finally {
-      setIsLoading(false);
+    } else if (paymentMethod === 'stripe') {
+      setIsPaymentModalOpen(false);
+      navigate('/stripe-payment-checkout', { 
+  state: { 
+    amount: priceFare,
+    pickup: {
+      lat: pickupLat,
+      lng: pickupLng,
+      address: pickupAddress
+    },
+    destination: {
+      lat: destLat,
+      lng: destLng,
+      address: destAddress
+    },
+    price: priceFare 
+  }
+});
+
     }
   };
 
@@ -407,6 +464,44 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
           </div>
         </div>
       </div>
+      <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Payment Method</DialogTitle>
+            <DialogDescription>
+              Choose how you would like to pay for your ride.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <RadioGroup value={paymentMethod} onValueChange={(val) => setPaymentMethod(val as 'stripe' | 'cash')}>
+              <div className={`flex items-center space-x-4 rounded-md border p-4 cursor-pointer transition-all ${paymentMethod === 'stripe' ? 'border-primary bg-primary/5' : 'hover:bg-muted'}`} onClick={() => setPaymentMethod('stripe')}>
+                <RadioGroupItem value="stripe" id="stripe" />
+                <Label htmlFor="stripe" className="flex-1 cursor-pointer flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-blue-500" />
+                  <div className="flex flex-col">
+                    <span className="font-semibold">Pay with Stripe Payment</span>
+                    <span className="text-xs text-muted-foreground">Secure online payment</span>
+                  </div>
+                </Label>
+              </div>
+              <div className={`flex items-center space-x-4 rounded-md border p-4 cursor-pointer transition-all ${paymentMethod === 'cash' ? 'border-primary bg-primary/5' : 'hover:bg-muted'}`} onClick={() => setPaymentMethod('cash')}>
+                <RadioGroupItem value="cash" id="cash" />
+                <Label htmlFor="cash" className="flex-1 cursor-pointer flex items-center gap-2">
+                  <Banknote className="h-5 w-5 text-green-500" />
+                  <div className="flex flex-col">
+                    <span className="font-semibold">Pay With Cash</span>
+                    <span className="text-xs text-muted-foreground">Pay directly to driver</span>
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPaymentModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleProceedPayment}>Proceed</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

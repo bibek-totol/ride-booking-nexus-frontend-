@@ -33,8 +33,8 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const token = getAuthToken();
- 
-  
+
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -52,7 +52,7 @@ async function apiRequest<T>(
 
     const data = await response.json();
     console.log('API Response:', data);
-    
+
 
     if (!response.ok) {
       return {
@@ -76,14 +76,14 @@ interface UserData {
 }
 
 
-interface Credentials{
+interface Credentials {
   email: string;
   password: string;
 }
 
 
 export const authApi = {
-  
+
   register: (userData: UserData) =>
     apiRequest('/auth/register', {
       method: 'POST',
@@ -106,9 +106,9 @@ export const authApi = {
 
 export const userApi = {
   getProfile: () => apiRequest('/users/profile'),
-  
+
   getAcceptedRides: () => apiRequest('/users/acceptedrides'),
-  
+
   getRideById: (rideId: string) => apiRequest(`/users/rides/${rideId}`),
 
   getUserById: (userId: string) => apiRequest(`/users/${userId}`),
@@ -143,6 +143,13 @@ export const riderApi = {
     pickup: { lat: number; lng: number; address: string };
     destination: { lat: number; lng: number; address: string };
     price: number;
+    payment: {
+      method?: string;
+      paymentIntentId?: string;
+      amount?: number;
+    };
+    riderName?: string;
+    riderEmail?: string;
   }) =>
     apiRequest('/riders/request', {
       method: 'POST',
@@ -154,8 +161,14 @@ export const riderApi = {
       method: 'POST',
     }),
 
+  createPaymentIntent: (amount: number) =>
+    apiRequest('/riders/payment/create-intent', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+
   getRideHistory: () => apiRequest('/riders/history'),
-  
+
   getRideById: (rideId: string) => apiRequest(`/riders/${rideId}`),
   getCoords: (address: string) =>
     apiRequest(`/riders/coords?address=${encodeURIComponent(address)}`),
@@ -164,10 +177,10 @@ export const riderApi = {
 
 export const driverApi = {
   acceptRide: (rideId: string, body: any) =>
-  apiRequest(`/drivers/${rideId}/accept`, {
-    method: 'PUT',
-    body: JSON.stringify(body),
-  }),
+    apiRequest(`/drivers/${rideId}/accept`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
 
 
   rejectRide: (rideId: string) =>
@@ -187,12 +200,12 @@ export const driverApi = {
       body: JSON.stringify({ available }),
     }),
 
-    
-    
- 
+
+
+
 
   getDriverEarnings: () => apiRequest('/drivers/earnings'),
-  
+
   getRideById: (rideId: string) => apiRequest(`/drivers/${rideId}`),
 
 
@@ -203,14 +216,14 @@ export const driverApi = {
 
 export const adminApi = {
   listUsers: () => apiRequest('/admin/users'),
-  
+
   listDrivers: () => apiRequest('/admin/drivers'),
-  
+
   listRides: () => apiRequest('/admin/rides'),
 
   getAllDriversAdditional: () => apiRequest("/admin/drivers/additional"),
 
-  
+
   approveDriver: (driverId: string) =>
     apiRequest(`/admin/drivers/${driverId}/approve`, {
       method: 'POST',

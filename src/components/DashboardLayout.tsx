@@ -126,7 +126,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </div>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border bg-card/95 dark:bg-[#08010f]/95 backdrop-blur z-50 dark:border-gray-700">
+      <nav className="md:hidden fixed  bottom-0 left-0 right-0 border-t border-border bg-card/95 dark:bg-[#08010f]/95 backdrop-blur z-50 dark:border-gray-700">
         <div className="flex justify-around py-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;

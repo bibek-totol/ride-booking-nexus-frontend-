@@ -22,7 +22,7 @@ export default function Login() {
   const [role, setRole] = useState('rider');
 
   const handleSignIn = async () => {
-    if (!email || !password) return; // basic validation
+    if (!email || !password) return; 
     setIsLoading(true);
     try {
       await login(email, password);
