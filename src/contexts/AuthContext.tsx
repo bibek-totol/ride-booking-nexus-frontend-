@@ -9,6 +9,7 @@ interface User {
   email: string;
   role: "rider" | "driver" | "admin";
   approved: boolean;
+  blocked: boolean;
 }
 
 interface AuthContextType {

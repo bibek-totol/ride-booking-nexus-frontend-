@@ -23,13 +23,29 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to={`/${user.role}`} replace />;
-  }
 
-  return <>{children}</>;
+
+if (!isAuthenticated) {
+  return <Navigate to="/login" replace />;
+}
+
+
+if (
+  user.role === "rider" &&
+  user.blocked === true &&
+  location.pathname !== "/rider/profile"
+) {
+  return <Navigate to="/rider/profile" replace />;
+}
+
+
+if (allowedRoles && !allowedRoles.includes(user.role)) {
+  return <Navigate to={`/${user.role}`} replace />;
+}
+
+return <>{children}</>;
+
+
+
 };

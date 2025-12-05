@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Car, LogOut, User, MapPin, History, DollarSign, ToggleLeft, Users, BarChart3, Shield, BookCopy, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import useTheme from '@/hooks/useTheme';
+import { useMemo } from 'react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -15,47 +16,69 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const { theme, setTheme } = useTheme();
 
+  console.log(user);
+
   if (!user) return null;
 
-  const getNavItems = () => {
-    switch (user.role) {
-      case 'rider':
-        return [
-          { icon: MapPin, label: 'Request Ride', path: '/rider' },
-          { icon: History, label: 'My Rides', path: '/rider/rides' },
-          { icon: MapPin, label: 'Track Realtime', path: '/rider/track-realtime' },
-          { icon: User, label: 'Profile', path: '/rider/profile' },
-        ];
-      case 'driver':
-        return user.approved
-          ? [
-              { icon: MapPin, label: 'Active Rides', path: '/driver' },
-              { icon: DollarSign, label: 'Earnings', path: '/driver/earnings' },
-              { icon: ToggleLeft, label: 'Availability', path: '/driver/availability' },
-              { icon: MapPin, label: 'Track Realtime', path: '/driver/track-realtime' },
-              { icon: User, label: 'Profile', path: '/driver/profile' },
-            ]
-          : [
-              { icon: User, label: 'Profile', path: '/driver/profile' },
-              { icon: BookCopy, label: 'Form', path: '/driver/information-form' },
-            ];
-      case 'admin':
-        return [
-          { icon: BarChart3, label: 'Dashboard', path: '/admin' },
-          { icon: Users, label: 'Users', path: '/admin/users' },
-          { icon: Car, label: 'Drivers', path: '/admin/drivers' },
-          { icon: Car, label: 'Driver Additionals', path: '/admin/drivers-additional' },
-          { icon: MapPin, label: 'Rides', path: '/admin/rides' },
-          { icon: Shield, label: 'Reports', path: '/admin/reports' },
-          { icon: User, label: 'Profile', path: '/admin/profile' },
-          { icon: MapPin, label: 'Track Realtime', path: '/admin/track-realtime' },
-        ];
-      default:
-        return [];
-    }
-  };
+ const getNavItems = () => {
+  if (!user) return [];
 
-  const navItems = getNavItems();
+  const { role, blocked, approved } = user;
+  console.log("CHECKING USER:", { blocked, approved, role });
+console.log("TYPE CHECK:", typeof blocked, typeof approved);
+
+
+  if (role === 'rider') {
+    if (blocked && !approved) {
+      return [{ icon: User, label: 'Profile', path: '/rider/profile' }];
+    }
+
+    else{
+     return [
+      { icon: MapPin, label: 'Request Ride', path: '/rider' },
+      { icon: History, label: 'My Rides', path: '/rider/rides' },
+      { icon: MapPin, label: 'Track Realtime', path: '/rider/track-realtime' },
+      { icon: User, label: 'Profile', path: '/rider/profile' },
+    ];
+    }
+    
+  }
+
+  if (role === 'driver') {
+    if (approved && !blocked) {
+      return [
+        { icon: MapPin, label: 'Active Rides', path: '/driver' },
+        { icon: DollarSign, label: 'Earnings', path: '/driver/earnings' },
+        { icon: ToggleLeft, label: 'Availability', path: '/driver/availability' },
+        { icon: MapPin, label: 'Track Realtime', path: '/driver/track-realtime' },
+        { icon: User, label: 'Profile', path: '/driver/profile' },
+      ];
+    }
+    return [
+      { icon: User, label: 'Profile', path: '/driver/profile' },
+      { icon: BookCopy, label: 'Form', path: '/driver/information-form' },
+    ];
+  }
+
+  if (role === 'admin') {
+    return [
+      { icon: BarChart3, label: 'Dashboard', path: '/admin' },
+      { icon: Users, label: 'Users', path: '/admin/users' },
+      { icon: Car, label: 'Drivers', path: '/admin/drivers' },
+      { icon: Car, label: 'Driver Additionals', path: '/admin/drivers-additional' },
+      { icon: MapPin, label: 'Rides', path: '/admin/rides' },
+      { icon: Shield, label: 'Reports', path: '/admin/reports' },
+      { icon: User, label: 'Profile', path: '/admin/profile' },
+      { icon: MapPin, label: 'Track Realtime', path: '/admin/track-realtime' },
+    ];
+  }
+
+  return [];
+};
+
+
+ const navItems = useMemo(() => getNavItems(), [user]);
+
 
   return (
     <div className="min-h-screen bg-background  dark:bg-gradient-to-r dark:from-[#08010F] dark:via-[#380996] dark:to-[#240404] text-foreground dark:text-white">

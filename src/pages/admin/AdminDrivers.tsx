@@ -81,7 +81,7 @@ export default function AdminDrivers() {
       const res = await adminApi.approveDriver(driverId);
       if (res.error) toast.error(res.error);
       else {
-        toast.success("Driver approved");
+        toast.success("Driver approved and Email Sent");
         fetchDrivers();
       }
     } catch {
@@ -94,7 +94,7 @@ export default function AdminDrivers() {
       const res = await adminApi.suspendDriver(driverId);
       if (res.error) toast.error(res.error);
       else {
-        toast.success("Driver suspended");
+        toast.success("Driver suspended and Email Sent");
         fetchDrivers();
       }
     } catch {
