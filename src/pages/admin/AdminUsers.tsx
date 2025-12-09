@@ -46,6 +46,23 @@ export default function AdminUsers() {
     }
   };
 
+
+
+  const handleDeleteUser = async (id: string) => {
+  try {
+    const res = await adminApi.deleteUser(id);
+
+    if (res.error) toast.error(res.error);
+    else {
+      toast.success("User deleted successfully");
+      setUsers((prev) => prev.filter((u) => u._id !== id)); // instant UI update
+    }
+  } catch {
+    toast.error("Error deleting user");
+  }
+};
+
+
   const handleBlockUser = async (id: string) => {
     try {
       const res = await adminApi.blockUser(id);
@@ -169,6 +186,7 @@ export default function AdminUsers() {
                       <TableHead className="dark:text-gray-200">Status</TableHead>
                       <TableHead className="dark:text-gray-200">Joined</TableHead>
                       <TableHead className="text-right dark:text-gray-200">Actions</TableHead>
+                      <TableHead className="text-right dark:text-gray-200">Delete</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -249,6 +267,18 @@ export default function AdminUsers() {
                               </Button>
                             )}
                           </TableCell>
+
+                          <TableCell className="text-right">
+  <Button
+    size="sm"
+    variant="destructive"
+    onClick={() => handleDeleteUser(user._id)}
+    className="dark:bg-red-700"
+  >
+    Delete
+  </Button>
+</TableCell>
+
                         </TableRow>
                       ))
                     )}

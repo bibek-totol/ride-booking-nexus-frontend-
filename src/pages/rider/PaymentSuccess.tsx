@@ -2,15 +2,16 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { riderApi } from "@/lib/api";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function PaymentSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
-    const { user } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
+
     const paymentIntentId = query.get("paymentIntentId");
     const rideDataRaw = query.get("rideData");
 
@@ -25,16 +26,21 @@ export default function PaymentSuccess() {
     const saveRide = async () => {
       try {
         const response = await riderApi.requestRide({
-
-
-
-          pickup: rideData.pickup,
-          destination: rideData.destination,
-          price: rideData.price,
+          pickup: {
+            lat: Number(rideData.pickup.lat),
+            lng: Number(rideData.pickup.lng),
+            address: rideData.pickup.address
+          },
+          destination: {
+            lat: Number(rideData.destination.lat),
+            lng: Number(rideData.destination.lng),
+            address: rideData.destination.address
+          },
+          price: Number(rideData.price),
           payment: {
             method: "stripe",
             paymentIntentId,
-            amount: rideData.price,
+            amount: Number(rideData.price),
           },
           riderName: user?.name,
           riderEmail: user?.email,
@@ -42,12 +48,23 @@ export default function PaymentSuccess() {
 
         if (response.error) {
           toast.error(response.error);
-        } else {
-          toast.success("Ride confirmed and Payment Done");
-          navigate("/");
+          return;
         }
-      } catch (err) {
-        toast.error("Failed to save ride after payment");
+
+        toast.success("Ride confirmed and Payment Complete");
+
+      
+        setTimeout(() => {
+          navigate("/");
+        }, 2500);
+
+      } catch {
+        toast.error("Failed to save ride");
+
+        
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       }
     };
 

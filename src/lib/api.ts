@@ -244,6 +244,12 @@ export const adminApi = {
       method: 'POST',
     }),
 
+
+     deleteUser: (userId: string) =>
+    apiRequest(`/admin/users/${userId}/delete`, {
+      method: 'DELETE',
+    }),
+
   generateReport: () => apiRequest('/admin/reports'),
 
 

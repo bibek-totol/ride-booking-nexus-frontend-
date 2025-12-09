@@ -25,104 +25,134 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function RiderDashboard() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
+
+  // IMPORTANT: Store coordinates as numbers (NOT strings)
   const [pickupAddress, setPickupAddress] = useState('');
-  const [pickupLat, setPickupLat] = useState('');
-  const [pickupLng, setPickupLng] = useState('');
+  const [pickupLat, setPickupLat] = useState<number | null>(null);
+  const [pickupLng, setPickupLng] = useState<number | null>(null);
+
   const [destAddress, setDestAddress] = useState('');
-  const [destLat, setDestLat] = useState('');
-  const [destLng, setDestLng] = useState('');
+  const [destLat, setDestLat] = useState<number | null>(null);
+  const [destLng, setDestLng] = useState<number | null>(null);
+
   const [priceFare, setPriceFare] = useState<number | null>(null);
 
   const { user } = useAuth();
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  //
+  // FARE CALCULATION
+  //
+  useEffect(() => {
+    if (
+      pickupLat !== null &&
+      pickupLng !== null &&
+      destLat !== null &&
+      destLng !== null
+    ) {
+      calculateFare(pickupLat, pickupLng, destLat, destLng);
+    }
+  }, [pickupLat, pickupLng, destLat, destLng]);
 
 
-useEffect(() => {
-  if (pickupLat && pickupLng && destLat && destLng) {
-    calculateFare(pickupLat, pickupLng, destLat, destLng);
+  function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   }
-}, [pickupLat, pickupLng, destLat, destLng]);
 
 
+  function calculateFare(pLat: number, pLng: number, dLat: number, dLng: number) {
+    const distance = getDistanceKm(pLat, pLng, dLat, dLng);
 
-function getDistanceKm(lat1:number, lon1:number, lat2:number, lon2:number) {
-  const R = 6371; 
-  const dLat = (lat2-lat1)*Math.PI/180;
-  const dLon = (lon2-lon1)*Math.PI/180;
-
-  const a =
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1*Math.PI/180) *
-    Math.cos(lat2*Math.PI/180) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-}
-
-
-
-  function calculateFare(pLat:string, pLng:string, dLat:string, dLng:string) {
-  if (pLat && pLng && dLat && dLng) {
-    const distance = getDistanceKm(
-      parseFloat(pLat),
-      parseFloat(pLng),
-      parseFloat(dLat),
-      parseFloat(dLng)
-    );
-
-    const BaseFare = 35;    
-    const PerKmRate = 35;   
+    const BaseFare = 35;
+    const PerKmRate = 35;
     const total = BaseFare + distance * PerKmRate;
-   
+    const finalFare = Math.round(total);
 
-    const finalFare = Math.round(total);  
-
-setPriceFare(finalFare);
-toast.success(`Distance: ${distance.toFixed(2)} km | Fare: ৳${finalFare}`);
-    
+    setPriceFare(finalFare);
+    toast.success(`Distance: ${distance.toFixed(2)} km | Fare: ৳${finalFare}`);
   }
-}
 
 
-  const handleRequestRide = async (e: React.FormEvent) => {
+  //
+  // REQUEST RIDE
+  //
+  const handleRequestRide = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!priceFare) {
-      toast.error("Please enter valid pickup and destination to calculate fare.");
+
+    if (
+      pickupLat === null ||
+      pickupLng === null ||
+      destLat === null ||
+      destLng === null
+    ) {
+      toast.error("Pickup and destination coordinates are required.");
       return;
     }
+
+    if (!priceFare) {
+      toast.error("Fare not calculated.");
+      return;
+    }
+
     setIsPaymentModalOpen(true);
   };
 
+
+  //
+  // PAYMENT OPTION HANDLING
+  //
   const handleProceedPayment = async () => {
-    if (paymentMethod === 'cash') {
+    if (
+      pickupLat === null ||
+      pickupLng === null ||
+      destLat === null ||
+      destLng === null
+    ) {
+      toast.error("Coordinates missing.");
+      return;
+    }
+
+    if (!priceFare) {
+      toast.error("Invalid fare.");
+      return;
+    }
+
+    if (paymentMethod === "cash") {
       toast.success("Payment will be in Cash");
       setIsPaymentModalOpen(false);
-      
-     
       setIsLoading(true);
+
       try {
-        const response:any = await riderApi.requestRide({
-
-
-
+        const response: any = await riderApi.requestRide({
           pickup: {
-            lat: parseFloat(pickupLat),
-            lng: parseFloat(pickupLng),
+            lat: pickupLat,
+            lng: pickupLng,
             address: pickupAddress,
           },
           destination: {
-            lat: parseFloat(destLat),
-            lng: parseFloat(destLng),
+            lat: destLat,
+            lng: destLng,
             address: destAddress,
           },
-          price: priceFare!,
+          price: priceFare,
           payment: {
             method: 'cash',
             paymentIntentId: undefined,
-            amount: priceFare!,
+            amount: priceFare,
           },
           riderName: user?.name,
           riderEmail: user?.email,
@@ -131,128 +161,125 @@ toast.success(`Distance: ${distance.toFixed(2)} km | Fare: ৳${finalFare}`);
         if (response.error) {
           toast.error(response.error);
         } else {
-          toast.success('Ride requested successfully! A driver will be assigned soon.');
-          setPickupAddress('');
-          setPickupLat('');
-          setPickupLng('');
-          setDestAddress('');
-          setDestLat('');
-          setDestLng('');
+          toast.success("Ride requested successfully!");
+          resetForm();
         }
-      } catch (error) {
-        toast.error('Failed to request ride. Please try again.');
-      } finally {
-        setIsLoading(false);
-      }
-    } else if (paymentMethod === 'stripe') {
-      setIsPaymentModalOpen(false);
-      navigate('/stripe-payment-checkout', { 
-  state: { 
-    amount: priceFare,
-    pickup: {
-      lat: pickupLat,
-      lng: pickupLng,
-      address: pickupAddress
-    },
-    destination: {
-      lat: destLat,
-      lng: destLng,
-      address: destAddress
-    },
-    price: priceFare 
-  }
-});
 
+      } catch {
+        toast.error("Failed to request ride.");
+      }
+
+      setIsLoading(false);
+    }
+
+    if (paymentMethod === "stripe") {
+      setIsPaymentModalOpen(false);
+
+      navigate("/stripe-payment-checkout", {
+        state: {
+          amount: priceFare,
+          pickup: {
+            lat: pickupLat,
+            lng: pickupLng,
+            address: pickupAddress
+          },
+          destination: {
+            lat: destLat,
+            lng: destLng,
+            address: destAddress
+          },
+          price: priceFare
+        }
+      });
     }
   };
 
 
-  const handlePickupCoordsChange = async (lat: string, lng: string) => {
-  setPickupLat(lat);
-  setPickupLng(lng);
+  function resetForm() {
+    setPickupAddress('');
+    setPickupLat(null);
+    setPickupLng(null);
 
-  if (lat && lng) {
-    const address = await getAddressFromCoords(lat, lng);
-    setPickupAddress(address);
-    
+    setDestAddress('');
+    setDestLat(null);
+    setDestLng(null);
+
+    setPriceFare(null);
   }
-};
 
 
+  //
+  // PICKUP COORDINATE HANDLING
+  //
+  const handlePickupCoordsChange = async (lat: string, lng: string) => {
+    const numericLat = Number(lat);
+    const numericLng = Number(lng);
 
-const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+    if (!isNaN(numericLat)) setPickupLat(numericLat);
+    if (!isNaN(numericLng)) setPickupLng(numericLng);
 
+    if (!isNaN(numericLat) && !isNaN(numericLng)) {
+      const address = await getAddressFromCoords(lat, lng);
+      setPickupAddress(address);
+    }
+  };
+
+
+  //
+  // DESTINATION ADDRESS HANDLING + AUTOCOMPLETE
+  //
   const handleDestAddressChange = (address: string) => {
     setDestAddress(address);
-    console.log("Destination Address Input:", address);
 
-    
     if (typingTimeout.current) {
       clearTimeout(typingTimeout.current);
     }
 
-  
     typingTimeout.current = setTimeout(async () => {
       const trimmed = address.trim();
+      if (!trimmed) return;
 
-    
-      if (!trimmed) {
-        setDestLat("");
-        setDestLng("");
-        setDestAddress("");
-        toast.error("Please fill in the address field.");
-        return;
-      }
-
-    
-      if (trimmed.length > 9) {
+      if (trimmed.length > 3) {
         try {
           const result = await getCoordsFromAddress(trimmed);
+          console.log(result);
 
-          
           if (result && result.lat && result.lng) {
-            setDestLat(result.lat);
-            setDestLng(result.lng);
+            setDestLat(Number(result.lat));
+            setDestLng(Number(result.lng));
 
-            
-            setDestAddress(result.display_name ? result.display_name : trimmed);
-
-            toast.success("Destination coordinates updated automatically!");
+            setDestAddress(result.display_name ?? trimmed);
           } else {
-            
-            toast.error("Address not found. Please check and try again.");
+            toast.error("Address not found.");
           }
-        } catch (error) {
-          console.error(error);
-          toast.error("Failed to fetch address. Please try again.");
+
+        } catch {
+          toast.error("Failed to fetch location.");
         }
       }
-    }, 1200);
+    }, 900);
   };
 
 
-
-
+  //
+  // USE CURRENT LOCATION
+  //
   const useCurrentLocation = () => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setPickupLat(position.coords.latitude.toString());
-          setPickupLng(position.coords.longitude.toString());
-          handlePickupCoordsChange(
-            position.coords.latitude.toString(),
-            position.coords.longitude.toString()
-          );
-          toast.success('Location captured!');
-        },
-        () => {
-          toast.error('Unable to get your location');
-        }
-      );
-    } else {
-      toast.error('Geolocation is not supported by your browser');
-    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        setPickupLat(lat);
+        setPickupLng(lng);
+
+        handlePickupCoordsChange(lat.toString(), lng.toString());
+        toast.success("Location captured!");
+      },
+      () => toast.error("Unable to get your location")
+    );
   };
+
 
   return (
     <DashboardLayout>
@@ -309,8 +336,8 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                         type="number"
                         step="any"
                         placeholder="Ex:12.9716"
-                        value={pickupLat}
-                        onChange={(e) => handlePickupCoordsChange(e.target.value, pickupLng)}
+                        value={pickupLat !== null ? pickupLat.toString() : ''}
+                        onChange={(e) => handlePickupCoordsChange(e.target.value, pickupLng !== null ? pickupLng.toString() : '')}
                         required
                       />
                     </div>
@@ -321,8 +348,8 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                         type="number"
                         step="any"
                         placeholder="Ex:77.5946"
-                        value={pickupLng}
-                        onChange={(e) => handlePickupCoordsChange(pickupLat, e.target.value)}
+                        value={pickupLng !== null ? pickupLng.toString() : ''}
+                        onChange={(e) => handlePickupCoordsChange(pickupLat !== null ? pickupLat.toString() : '', e.target.value)}
                         required
                       />
                     </div>
@@ -353,10 +380,10 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                         step="any"
                         placeholder="Ex:12.9352"
                         value={destLat}
-                        onChange={(e) =>{
-                         setDestLat(e.target.value);  
-                        
-                        } }
+                        onChange={(e) => {
+                          const numericValue = Number(e.target.value);
+                          if (!isNaN(numericValue)) setDestLat(numericValue);
+                        }}
                         required
                       />
                     </div>
@@ -368,10 +395,10 @@ const typingTimeout = useRef<NodeJS.Timeout | null>(null);
                         step="any"
                         placeholder="Ex:77.6245"
                         value={destLng}
-                        onChange={(e) =>{
-                          setDestLng(e.target.value);
-                        
-                        } }
+                        onChange={(e) => {
+                          const numericValue = Number(e.target.value);
+                          if (!isNaN(numericValue)) setDestLng(numericValue);
+                        }}
                         required
                       />
                     </div>

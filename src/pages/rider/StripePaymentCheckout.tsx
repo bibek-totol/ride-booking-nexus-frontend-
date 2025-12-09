@@ -13,7 +13,7 @@ import { riderApi } from "@/lib/api";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 
-function PaymentForm({ amount, paymentIntentId, rideData }: { amount: number, paymentIntentId: string, rideData: any }) {
+function PaymentForm({ amount, paymentIntentId, rideData }: any) {
 
   const stripe = useStripe();
   const elements = useElements();
