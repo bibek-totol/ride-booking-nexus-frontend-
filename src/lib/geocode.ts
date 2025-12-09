@@ -22,15 +22,15 @@ export async function getAddressFromCoords(lat: string, lng: string) {
 
 export async function getCoordsFromAddress(address: string) {
   try {
-   
+
 
 
     const response = await riderApi.getCoords(address);
 
-    
+
     console.log("Geocode data:", response.data);
     const data = response.data;
-    
+
 
     if (Array.isArray(data) && data.length > 0) {
       return { lat: data[0].lat, lng: data[0].lon, display_name: data[0].display_name };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
@@ -10,6 +10,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Button } from "@/components/ui/button";
 import { userApi } from "@/lib/api";
 import { getSocket } from "@/lib/socketClient";
+import { toast } from "sonner";
+import { getAddressFromCoords } from "@/lib/geocode";
 
 // Fix leaflet icon issue (if using the default icons)
 (delete (L.Icon.Default as any).prototype._getIconUrl);
@@ -41,6 +43,36 @@ export default function TrackRealtime() {
   const [selectedRide, setSelectedRide] = useState<Ride | null>(null);
   const [loading, setLoading] = useState(true);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
+  const driverPosRef = useRef(driverPos);
+
+  const playNotificationSound = () => {
+
+  const audio = new Audio("/sounds/mixkit-happy-bells-notification-937.wav");
+
+  audio.volume = 1.0; // optional: adjust volume 0.0 - 1.0
+  audio.play().catch(() => {});
+};
+
+
+  // Keep ref in sync with state
+  useEffect(() => {driverPos
+    driverPosRef.current = driverPos;
+  }, [driverPos]);
+
+useEffect(() => {
+  const interval = setInterval(async () => {
+    const pos = driverPosRef.current;
+    if (pos) {
+      const address = await getAddressFromCoords(pos.lat.toString(), pos.lng.toString());
+
+      toast.success(`Driver is at: ${address}`);
+      playNotificationSound();
+    }
+  }, 1 * 60 * 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
 
   
   useEffect(() => {
