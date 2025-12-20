@@ -215,11 +215,11 @@ export const driverApi = {
 
 
 export const adminApi = {
-  listUsers: () => apiRequest('/admin/users'),
+  listUsers: () => apiRequest<{ users: any[] }>('/admin/users'),
 
-  listDrivers: () => apiRequest('/admin/drivers'),
+  listDrivers: () => apiRequest<{ drivers: any[] }>('/admin/drivers'),
 
-  listRides: () => apiRequest('/admin/rides'),
+  listRides: () => apiRequest<{ rides: any[] }>('/admin/rides'),
 
   getAllDriversAdditional: () => apiRequest("/admin/drivers/additional"),
 
@@ -245,7 +245,7 @@ export const adminApi = {
     }),
 
 
-     deleteUser: (userId: string) =>
+  deleteUser: (userId: string) =>
     apiRequest(`/admin/users/${userId}/delete`, {
       method: 'DELETE',
     }),

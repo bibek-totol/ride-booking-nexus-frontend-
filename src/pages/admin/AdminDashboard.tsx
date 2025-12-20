@@ -26,9 +26,11 @@ export default function AdminDashboard() {
         adminApi.listRides(),
       ]);
 
-      const users = usersRes.data as any[] || [];
-      const drivers = driversRes.data as any[] || [];
-      const rides = ridesRes.data as any[] || [];
+  
+
+      const users = usersRes.data?.users || [];
+      const drivers = driversRes.data?.drivers || [];
+      const rides = ridesRes.data?.rides || [];
 
       setStats({
         totalUsers: users.length,
@@ -42,10 +44,10 @@ export default function AdminDashboard() {
     } catch (e) {
       // Mock data fallback
       setStats({
-        totalUsers: 156,
-        totalDrivers: 42,
-        totalRides: 328,
-        activeRides: 12,
+        totalUsers: 0,
+        totalDrivers: 0,
+        totalRides: 0,
+        activeRides: 0,
       });
     } finally {
       setIsLoading(false);

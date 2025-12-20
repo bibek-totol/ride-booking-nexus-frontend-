@@ -3,9 +3,7 @@ import { useEffect, useState } from "react";
 type Theme = "light" | "dark";
 
 export default function useTheme() {
-  const [theme, setTheme] = useState<Theme>(
-    (localStorage.getItem("theme") as Theme) || "dark"
-  );
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     const root = document.documentElement;

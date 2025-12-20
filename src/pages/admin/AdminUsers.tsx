@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { adminApi } from "@/lib/api";
 import { toast } from "sonner";
-import { Users, Ban, CheckCircle, Loader2 } from "lucide-react";
+import { Users, Ban, CheckCircle, Loader2,Trash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function AdminUsers() {
@@ -256,7 +256,18 @@ export default function AdminUsers() {
                               >
                                 <CheckCircle className="h-4 w-4 mr-1" /> Unblock
                               </Button>
-                            ) : (
+                            ) :
+                              user.role === "admin" ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled
+                                  className="dark:border-gray-400 dark:text-gray-300"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-1" /> Admin
+                                </Button>
+                              ) 
+                             : (
                               <Button
                                 size="sm"
                                 variant="destructive"
@@ -269,14 +280,29 @@ export default function AdminUsers() {
                           </TableCell>
 
                           <TableCell className="text-right">
-  <Button
-    size="sm"
-    variant="destructive"
-    onClick={() => handleDeleteUser(user._id)}
-    className="dark:bg-red-700"
-  >
-    Delete
-  </Button>
+
+                            {
+                              user.role === "admin" ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled
+                                  className="dark:border-gray-400 dark:text-gray-300"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-1" /> Admin
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleDeleteUser(user._id)}
+                                  className="dark:bg-red-700"
+                                >
+                                  <Trash className="h-4 w-4 mr-1" /> Delete
+                                </Button>
+                              )
+                            }
+
 </TableCell>
 
                         </TableRow>
