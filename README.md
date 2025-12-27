@@ -109,7 +109,7 @@ A modern, responsive ride-booking web application built with React, TypeScript, 
    npm run dev
    ```
 
-   The app will be available at `http://localhost:8080`
+ 
 
 ##  API Integration
 
