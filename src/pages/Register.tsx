@@ -5,27 +5,56 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Car, Mail, Lock } from 'lucide-react';
+import { Car, Mail, Lock, Phone } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { toast } from 'sonner';
 
 export default function Register() {
   const { register } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('rider');
   const [isLoading, setIsLoading] = useState(false);
 
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    // Basic validation: allow optional + at start, then 10-15 digits
+    return /^\+?[\d\s-]{10,15}$/.test(phone);
+  };
+
   const handleRegister = async () => {
-    if (!name || !email || !password || !confirmPassword) return; // basic validation
-    if (password !== confirmPassword) return alert('Passwords do not match');
+    if (!name || !email || !phone || !password || !confirmPassword) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    if (!validatePhone(phone)) {
+      toast.error('Please enter a valid phone number (10-15 digits)');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await register( name, email, password, role );
+      await register(name, email, password, role, phone);
     } finally {
       setIsLoading(false);
     }
@@ -80,9 +109,25 @@ export default function Register() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="you@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300"
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="01712345678"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     className="pl-10 bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300"
                   />
                 </div>

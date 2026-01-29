@@ -73,6 +73,7 @@ interface UserData {
   email: string;
   password: string;
   role: string;
+  phone: string;
 }
 
 
@@ -100,6 +101,18 @@ export const authApi = {
     apiRequest('/auth/refresh', {
       method: 'POST',
       body: JSON.stringify({ token }),
+    }),
+
+  verifyLoginOtp: (email: string, otp: string) =>
+    apiRequest<{ accessToken: string; refreshToken: string; user: any }>('/auth/verify-login-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    }),
+
+  resendOtp: (email: string) =>
+    apiRequest('/auth/resend-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     }),
 };
 

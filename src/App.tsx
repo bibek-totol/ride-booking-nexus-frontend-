@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import VerifyOtp from "./pages/VerifyOtp";
 import Profile from "./pages/Profile";
 
 import RiderDashboard from "./pages/rider/RiderDashboard";
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/contact" element={<ContactUsPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/oauth-success" element={<OAuthSuccess />} />
             
            

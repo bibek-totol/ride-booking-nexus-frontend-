@@ -16,12 +16,14 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<any>;
+  verifyLoginOtp: (email: string, otp: string) => Promise<void>;
   register: (
     name: string,
     email: string,
     password: string,
-    role: string
+    role: string,
+    phone: string
   ) => Promise<void>;
   logout: () => void;
 }
@@ -58,23 +60,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (response.error) {
         toast.error(response.error);
-        return;
+        return response;
       }
 
       if (response.data) {
-        saveAuthTokens(response.data.accessToken, response.data.refreshToken);
-        const userData = response.data.user;
-        console.log(userData);
+        console.log("Login response data:", response.data);
+        
+        // Check for requireOtp in both response.data and response.data.data
+        const data = response.data as any;
+      
+        const requireOtp = data.requiresOtp || data.data?.requiresOtp;
+
+
+        if (requireOtp) {
+          console.log("OTP required, redirecting...");
+          return response;
+        }
+
+        if (!data.user && !data.data?.user) {
+          console.error("No user data found in response");
+          throw new Error("User data missing from response");
+        }
+
+        const userData = data.user || data.data?.user;
+        const accessToken = data.accessToken || data.data?.accessToken;
+        const refreshToken = data.refreshToken || data.data?.refreshToken;
+
+        saveAuthTokens(accessToken, refreshToken);
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
 
-        
         const dashboardPath = `/${userData.role}`;
         navigate(dashboardPath);
         toast.success("Welcome back!");
       }
+      return response;
     } catch (error) {
       toast.error("Login failed. Please try again.");
+      return { error: "Login failed" };
+    }
+  };
+
+  const verifyLoginOtp = async (email: string, otp: string) => {
+    try {
+      const response = await authApi.verifyLoginOtp(email, otp);
+
+      if (response.error) {
+        toast.error(response.error);
+        return;
+      }
+
+      if (response.data) {
+        const data = response.data as any;
+        const userData = data.user || data.data?.user;
+        const accessToken = data.accessToken || data.data?.accessToken;
+        const refreshToken = data.refreshToken || data.data?.refreshToken;
+
+        saveAuthTokens(accessToken, refreshToken);
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+
+        const dashboardPath = `/${userData.role}`;
+        navigate(dashboardPath);
+        toast.success("Login successful!");
+      }
+    } catch (error) {
+      toast.error("Verification failed. Please try again.");
     }
   };
 
@@ -82,10 +133,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     name: string,
     email: string,
     password: string,
-    role: string
+    role: string,
+    phone: string
   ) => {
     try {
-      const response = await authApi.register({ name, email, password, role });
+      const response = await authApi.register({ name, email, password, role, phone });
 
       if (response.error) {
         toast.error(response.error);
@@ -117,6 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isAuthenticated: !!user,
         isLoading,
         login,
+        verifyLoginOtp,
         register,
         logout,
       }}
