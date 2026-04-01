@@ -65,7 +65,7 @@ export default function DriverInformationForm() {
     if (formData.licenseImg) form.append("licenseImg", formData.licenseImg);
     if (formData.regCertImg) form.append("regCertImg", formData.regCertImg);
 
-    const API_BASE_URL = "http://localhost:4000/api";
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
 
     try {
       const res = await fetch(`${API_BASE_URL}/drivers/additional-info`, {
